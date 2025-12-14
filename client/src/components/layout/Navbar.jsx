@@ -1,9 +1,6 @@
-
 import React, { useRef, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const navRef = useRef(null);
   const linksRef = useRef([]);
   const underlineRef = useRef(null);
@@ -290,23 +287,10 @@ const Navbar = () => {
               position: 'relative'
             }}>
               {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
-                <button
+                <a
                   key={item}
                   ref={(el) => (linksRef.current[i] = el)}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (item === 'Home') {
-                      navigate('/');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      navigate('/');
-                      setTimeout(() => {
-                        const el = document.getElementById(item.toLowerCase());
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }, 60);
-                    }
-                    if (window.innerWidth < 768) setIsMobileMenuOpen(false);
-                  }}
+                  href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
                   onMouseMove={magnetic}
                   style={{
                     position: 'relative',
@@ -316,9 +300,7 @@ const Navbar = () => {
                     textDecoration: 'none',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     opacity: 0,
-                    cursor: 'pointer',
-                    background: 'transparent',
-                    border: 'none'
+                    cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#ffffff';
@@ -329,12 +311,11 @@ const Navbar = () => {
                   }}
                 >
                   {item}
-                </button>
+                </a>
               ))}
 
               <button
                 ref={ctaRef}
-                onClick={() => navigate('/create')}
                 onMouseEnter={handleCTAHover}
                 onMouseLeave={handleCTALeave}
                 style={{
@@ -432,23 +413,11 @@ const Navbar = () => {
             maxWidth: '1280px',
             margin: '0 auto'
           }}>
-            {['Home', 'Features', 'Templates', 'Docs'].map((item) => (
-              <button
+            {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
+              <a
                 key={item}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (item === 'Home') {
-                    navigate('/');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    navigate('/');
-                    setTimeout(() => {
-                      const el = document.getElementById(item.toLowerCase());
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    }, 60);
-                  }
-                  setIsMobileMenuOpen(false);
-                }}
+                href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
+                onClick={() => setIsMobileMenuOpen(false)}
                 style={{
                   color: '#d1d5db',
                   fontSize: '1.125rem',
@@ -457,9 +426,7 @@ const Navbar = () => {
                   padding: '0.75rem 1rem',
                   borderRadius: '0.5rem',
                   transition: 'all 0.2s ease',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer'
+                  background: 'transparent'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#ffffff';
@@ -473,7 +440,7 @@ const Navbar = () => {
                 }}
               >
                 {item}
-              </button>
+              </a>
             ))}
             
             <button
@@ -490,7 +457,6 @@ const Navbar = () => {
                 boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
                 transition: 'all 0.2s ease'
               }}
-              onClick={() => { setIsMobileMenuOpen(false); navigate('/create'); }}
               onMouseDown={(e) => {
                 e.currentTarget.style.transform = 'scale(0.95)';
               }}
