@@ -8,7 +8,9 @@ const Navbar = () => {
   const ctaRef = useRef(null);
   const glowRef = useRef(null);
   const particleContainerRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Scroll-aware navigation
@@ -27,21 +29,23 @@ const Navbar = () => {
       } else {
         setIsScrolled(false);
         if (navRef.current) {
-          navRef.current.style.height = '80px';
+          navRef.current.style.height = window.innerWidth < 768 ? '64px' : '80px';
           navRef.current.style.backdropFilter = 'blur(0px)';
           navRef.current.style.background = 'rgba(10, 10, 10, 0.7)';
           navRef.current.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         }
       }
 
-      // Hide/show on scroll direction
-      if (currentScroll > lastScroll && currentScroll > 100) {
-        if (navRef.current) {
-          navRef.current.style.transform = 'translateY(-100%)';
-        }
-      } else {
-        if (navRef.current) {
-          navRef.current.style.transform = 'translateY(0)';
+      // Hide/show on scroll direction (desktop only)
+      if (window.innerWidth >= 768) {
+        if (currentScroll > lastScroll && currentScroll > 100) {
+          if (navRef.current) {
+            navRef.current.style.transform = 'translateY(-100%)';
+          }
+        } else {
+          if (navRef.current) {
+            navRef.current.style.transform = 'translateY(0)';
+          }
         }
       }
       lastScroll = currentScroll;
@@ -91,13 +95,14 @@ const Navbar = () => {
       }
     }, 100);
 
-    // Underline slide effect
+    // Underline slide effect (desktop only)
     linksRef.current.forEach((link) => {
       if (!link) return;
 
       const handleMouseEnter = () => {
+        if (window.innerWidth < 768) return;
+        
         const rect = link.getBoundingClientRect();
-        const navRect = navRef.current.getBoundingClientRect();
         
         if (underlineRef.current) {
           underlineRef.current.style.left = `${rect.left}px`;
@@ -106,14 +111,12 @@ const Navbar = () => {
           underlineRef.current.style.transform = 'scaleX(1)';
         }
 
-        // Glow effect
         if (glowRef.current) {
           glowRef.current.style.left = `${rect.left + rect.width / 2}px`;
           glowRef.current.style.opacity = '0.4';
           glowRef.current.style.transform = 'translate(-50%, -50%) scale(1)';
         }
 
-        // Create particle trail
         createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
       };
 
@@ -137,9 +140,24 @@ const Navbar = () => {
     };
   }, []);
 
-  // Create particle effect
+  // Mobile menu toggle
+  useEffect(() => {
+    if (mobileMenuRef.current) {
+      if (isMobileMenuOpen) {
+        mobileMenuRef.current.animate([
+          { opacity: 0, transform: 'translateY(-20px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], {
+          duration: 300,
+          fill: 'forwards',
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+        });
+      }
+    }
+  }, [isMobileMenuOpen]);
+
   const createParticles = (x, y) => {
-    if (!particleContainerRef.current) return;
+    if (!particleContainerRef.current || window.innerWidth < 768) return;
 
     for (let i = 0; i < 3; i++) {
       const particle = document.createElement('div');
@@ -171,8 +189,9 @@ const Navbar = () => {
     }
   };
 
-  // Magnetic effect
   const magnetic = (e) => {
+    if (window.innerWidth < 768) return;
+    
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
@@ -184,9 +203,8 @@ const Navbar = () => {
     e.currentTarget.style.transform = 'translate(0, 0)';
   };
 
-  // CTA button effects
   const handleCTAHover = (e) => {
-    if (ctaRef.current) {
+    if (ctaRef.current && window.innerWidth >= 768) {
       ctaRef.current.style.transform = 'scale(1.05)';
       ctaRef.current.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5)';
     }
@@ -201,7 +219,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Particle Container */}
       <div ref={particleContainerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 100 }} />
 
       <nav
@@ -216,13 +233,13 @@ const Navbar = () => {
           backdropFilter: 'blur(0px)',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
           transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          height: '80px'
+          height: window.innerWidth < 768 ? '64px' : '80px'
         }}
       >
         <div style={{
           maxWidth: '1280px',
           margin: '0 auto',
-          padding: '0 1.5rem',
+          padding: '0 1rem',
           height: '100%'
         }}>
           <div style={{
@@ -236,17 +253,20 @@ const Navbar = () => {
               ref={logoRef}
               href="#"
               style={{
-                fontSize: '1.5rem',
+                fontSize: window.innerWidth < 640 ? '1.25rem' : '1.5rem',
                 fontWeight: 'bold',
                 color: 'white',
                 textDecoration: 'none',
                 letterSpacing: '-0.05em',
                 opacity: 0,
                 position: 'relative',
-                display: 'inline-block'
+                display: 'inline-block',
+                transition: 'transform 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
+                if (window.innerWidth >= 768) {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';
@@ -259,11 +279,11 @@ const Navbar = () => {
               }}>Gen</span>
             </a>
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation */}
             <div style={{
-              display: 'flex',
+              display: window.innerWidth >= 768 ? 'flex' : 'none',
               alignItems: 'center',
-              gap: '2.5rem',
+              gap: window.innerWidth >= 1024 ? '2.5rem' : '1.5rem',
               position: 'relative'
             }}>
               {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
@@ -294,7 +314,6 @@ const Navbar = () => {
                 </a>
               ))}
 
-              {/* CTA Button */}
               <button
                 ref={ctaRef}
                 onMouseEnter={handleCTAHover}
@@ -316,15 +335,43 @@ const Navbar = () => {
                 }}
               >
                 <span style={{ position: 'relative', zIndex: 1 }}>Get Started</span>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
-                  opacity: 0,
-                  transition: 'opacity 0.3s ease'
-                }} />
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              style={{
+                display: window.innerWidth < 768 ? 'flex' : 'none',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                padding: '0.5rem',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease'
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'scale(0.9)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              {isMobileMenuOpen ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
@@ -342,7 +389,88 @@ const Navbar = () => {
         }} />
       </nav>
 
-      {/* GSAP Underline */}
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          style={{
+            position: 'fixed',
+            top: '64px',
+            left: 0,
+            right: 0,
+            background: 'rgba(10, 10, 10, 0.95)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            zIndex: 40,
+            padding: '1.5rem 1rem',
+            opacity: 0
+          }}
+        >
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+            maxWidth: '1280px',
+            margin: '0 auto'
+          }}>
+            {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
+              <a
+                key={item}
+                href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{
+                  color: '#d1d5db',
+                  fontSize: '1.125rem',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.5rem',
+                  transition: 'all 0.2s ease',
+                  background: 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+                  e.currentTarget.style.paddingLeft = '1.5rem';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#d1d5db';
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.paddingLeft = '1rem';
+                }}
+              >
+                {item}
+              </a>
+            ))}
+            
+            <button
+              style={{
+                padding: '0.875rem 1.5rem',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '9999px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginTop: '0.5rem',
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'scale(0.95)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              Get Started
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Underline */}
       <span
         ref={underlineRef}
         style={{
@@ -356,7 +484,8 @@ const Navbar = () => {
           zIndex: 51,
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           transformOrigin: 'center',
-          transform: 'scaleX(0.8)'
+          transform: 'scaleX(0.8)',
+          display: window.innerWidth < 768 ? 'none' : 'block'
         }}
       />
 
@@ -376,7 +505,8 @@ const Navbar = () => {
           opacity: 0,
           filter: 'blur(40px)',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: 'translate(-50%, -50%) scale(0.8)'
+          transform: 'translate(-50%, -50%) scale(0.8)',
+          display: window.innerWidth < 768 ? 'none' : 'block'
         }}
       />
     </>
