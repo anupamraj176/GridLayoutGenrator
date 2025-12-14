@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useNavigate } from 'react-router-dom';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,6 +34,7 @@ const TEMPLATES = [
 ];
 
 const Hero = () => {
+
   const containerRef = useRef(null);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -44,6 +46,7 @@ const Hero = () => {
   const cardsRef = useRef([]);
   const meshRef = useRef(null);
   const [titleText, setTitleText] = useState("...");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Animated mesh background
@@ -123,30 +126,8 @@ const Hero = () => {
           });
         }, i * 40);
       });
-    }, 100);
 
-    // Type writer effect
-    setTimeout(() => {
-      const words = ['Perfection', 'Innovation', 'Excellence'];
-      let wordIndex = 0;
-      let charIndex = 0;
-      
-      const typeWriter = () => {
-        if (charIndex < words[wordIndex].length) {
-          setTitleText(words[wordIndex].substring(0, charIndex + 1));
-          charIndex++;
-          setTimeout(typeWriter, 100);
-        } else {
-          setTimeout(() => {
-            charIndex = 0;
-            wordIndex = (wordIndex + 1) % words.length;
-            setTitleText('');
-            setTimeout(typeWriter, 500);
-          }, 2000);
-        }
-      };
-      typeWriter();
-    }, 1200);
+    }, 100);
 
     // Subtitle animation
     setTimeout(() => {
@@ -447,6 +428,7 @@ const Hero = () => {
             flexWrap: 'wrap'
           }}>
             <button
+              onClick={() => navigate('/create')}
               onMouseMove={magnetic}
               onMouseLeave={resetMagnetic}
               style={{
