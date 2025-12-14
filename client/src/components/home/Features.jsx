@@ -32,12 +32,12 @@ const Features = () => {
       gsap.from(card, {
         scrollTrigger: {
           trigger: card,
-          start: "top 80%",
-          toggleActions: "play none none reverse"
+          start: "top 85%",
+          toggleActions: "restart none none reverse"
         },
         y: 100,
         opacity: 0,
-        duration: 1,
+        duration: 0.8,
         ease: "power4.out"
       });
     });
