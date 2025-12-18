@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -676,34 +677,68 @@ const Hero = () => {
                   {item.subtitle}
                 </p>
 
-                <button
-                  onMouseMove={handleButtonMove}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = item.accentColor;
-                    e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={handleButtonLeave}
-                  style={{
-                    padding: '0.875rem 2rem',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: `2px solid ${item.accentColor}`,
-                    borderRadius: '9999px',
-                    color: 'white',
-                    fontSize: '0.875rem',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                    backdropFilter: 'blur(10px)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    boxShadow: `0 0 20px ${item.accentColor}40`,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  Explore Template →
-                </button>
+                {item.title === 'Cyber Grid' ? (
+                  <Link
+                    to="/cyber-grid"
+                    onMouseMove={handleButtonMove}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = item.accentColor;
+                      e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={handleButtonLeave}
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.875rem 2rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: `2px solid ${item.accentColor}`,
+                      borderRadius: '9999px',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      backdropFilter: 'blur(10px)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: `0 0 20px ${item.accentColor}40`,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    Explore Template →
+                  </Link>
+                ) : (
+                  <button
+                    onMouseMove={handleButtonMove}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = item.accentColor;
+                      e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={handleButtonLeave}
+                    style={{
+                      padding: '0.875rem 2rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: `2px solid ${item.accentColor}`,
+                      borderRadius: '9999px',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      backdropFilter: 'blur(10px)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: `0 0 20px ${item.accentColor}40`,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    Explore Template →
+                  </button>
+                )}
               </div>
             </div>
           ))}
