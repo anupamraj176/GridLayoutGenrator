@@ -446,10 +446,12 @@ const Hero = () => {
             gap: '1.5rem',
             flexWrap: 'wrap'
           }}>
-            <button
+            <a
+              href="/grid"
               onMouseMove={magnetic}
               onMouseLeave={resetMagnetic}
               style={{
+                display: 'inline-block',
                 padding: '1rem 2.5rem',
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 borderRadius: '9999px',
@@ -462,14 +464,15 @@ const Hero = () => {
                 fontSize: '1rem',
                 opacity: 0,
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                textDecoration: 'none'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 0 80px rgba(99, 102, 241, 0.8), 0 15px 40px rgba(0, 0, 0, 0.4)';
               }}
             >
               Start Creating
-            </button>
+            </a>
 
             <button
               onMouseMove={magnetic}
