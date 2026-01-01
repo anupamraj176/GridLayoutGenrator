@@ -1,4 +1,4 @@
-# Grid Layout Generator - robots.txt
+# robots.txt for CSS Grid Generator
 # https://www.robotstxt.org/
 
 # Allow all crawlers
@@ -6,7 +6,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://grid-layout-generator.vercel.app/sitemap.xml
+Sitemap: https://cssgridgenerator-psi.vercel.app/sitemap.xml
 
 # Disallow development paths
 Disallow: /node_modules/
