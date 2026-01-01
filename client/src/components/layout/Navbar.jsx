@@ -1,54 +1,30 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const navRef = useRef(null);
-  const linksRef = useRef([]);
-  const underlineRef = useRef(null);
   const logoRef = useRef(null);
-  const ctaRef = useRef(null);
-  const glowRef = useRef(null);
-  const particleContainerRef = useRef(null);
-  const mobileMenuRef = useRef(null);
+  const linksRef = useRef([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Grid Generator', path: '/grid' },
+    { name: 'Cyber Grid', path: '/cyber-grid' },
+    { name: 'Fluid Mesh', path: '/fluid-mesh' }
+  ];
 
   useEffect(() => {
-    // Scroll-aware navigation
-    let lastScroll = 0;
     const handleScroll = () => {
       const currentScroll = window.scrollY;
       
-      if (currentScroll > 80) {
+      if (currentScroll > 50) {
         setIsScrolled(true);
-        if (navRef.current) {
-          navRef.current.style.height = '64px';
-          navRef.current.style.backdropFilter = 'blur(20px)';
-          navRef.current.style.background = 'rgba(10, 10, 10, 0.85)';
-          navRef.current.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-        }
       } else {
         setIsScrolled(false);
-        if (navRef.current) {
-          navRef.current.style.height = window.innerWidth < 768 ? '64px' : '80px';
-          navRef.current.style.backdropFilter = 'blur(0px)';
-          navRef.current.style.background = 'rgba(10, 10, 10, 0.7)';
-          navRef.current.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        }
       }
-
-      // Hide/show on scroll direction (desktop only)
-      if (window.innerWidth >= 768) {
-        if (currentScroll > lastScroll && currentScroll > 100) {
-          if (navRef.current) {
-            navRef.current.style.transform = 'translateY(-100%)';
-          }
-        } else {
-          if (navRef.current) {
-            navRef.current.style.transform = 'translateY(0)';
-          }
-        }
-      }
-      lastScroll = currentScroll;
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -80,436 +56,244 @@ const Navbar = () => {
           }, i * 100);
         }
       });
-
-      if (ctaRef.current) {
-        setTimeout(() => {
-          ctaRef.current.animate([
-            { opacity: 0, transform: 'translateY(-20px) scale(0.9)' },
-            { opacity: 1, transform: 'translateY(0) scale(1)' }
-          ], {
-            duration: 700,
-            fill: 'forwards',
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
-          });
-        }, 300);
-      }
     }, 100);
-
-    // Underline slide effect (desktop only)
-    linksRef.current.forEach((link) => {
-      if (!link) return;
-
-      const handleMouseEnter = () => {
-        if (window.innerWidth < 768) return;
-        
-        const rect = link.getBoundingClientRect();
-        
-        if (underlineRef.current) {
-          underlineRef.current.style.left = `${rect.left}px`;
-          underlineRef.current.style.width = `${rect.width}px`;
-          underlineRef.current.style.opacity = '1';
-          underlineRef.current.style.transform = 'scaleX(1)';
-        }
-
-        if (glowRef.current) {
-          glowRef.current.style.left = `${rect.left + rect.width / 2}px`;
-          glowRef.current.style.opacity = '0.4';
-          glowRef.current.style.transform = 'translate(-50%, -50%) scale(1)';
-        }
-
-        createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      };
-
-      const handleMouseLeave = () => {
-        if (underlineRef.current) {
-          underlineRef.current.style.opacity = '0';
-          underlineRef.current.style.transform = 'scaleX(0.8)';
-        }
-        if (glowRef.current) {
-          glowRef.current.style.opacity = '0';
-          glowRef.current.style.transform = 'translate(-50%, -50%) scale(0.8)';
-        }
-      };
-
-      link.addEventListener('mouseenter', handleMouseEnter);
-      link.addEventListener('mouseleave', handleMouseLeave);
-    });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  // Mobile menu toggle
+  // Close mobile menu on route change
   useEffect(() => {
-    if (mobileMenuRef.current) {
-      if (isMobileMenuOpen) {
-        mobileMenuRef.current.animate([
-          { opacity: 0, transform: 'translateY(-20px)' },
-          { opacity: 1, transform: 'translateY(0)' }
-        ], {
-          duration: 300,
-          fill: 'forwards',
-          easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
-        });
-      }
-    }
-  }, [isMobileMenuOpen]);
-
-  const createParticles = (x, y) => {
-    if (!particleContainerRef.current || window.innerWidth < 768) return;
-
-    for (let i = 0; i < 3; i++) {
-      const particle = document.createElement('div');
-      particle.style.cssText = `
-        position: fixed;
-        left: ${x}px;
-        top: ${y}px;
-        width: 4px;
-        height: 4px;
-        background: rgba(139, 92, 246, 0.8);
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 100;
-      `;
-      particleContainerRef.current.appendChild(particle);
-
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * 30 + 20;
-      const tx = Math.cos(angle) * distance;
-      const ty = Math.sin(angle) * distance;
-
-      particle.animate([
-        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-        { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
-      ], {
-        duration: 600,
-        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
-      }).onfinish = () => particle.remove();
-    }
-  };
-
-  const magnetic = (e) => {
-    if (window.innerWidth < 768) return;
-    
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-
-    e.currentTarget.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-  };
-
-  const resetMagnetic = (e) => {
-    e.currentTarget.style.transform = 'translate(0, 0)';
-  };
-
-  const handleCTAHover = (e) => {
-    if (ctaRef.current && window.innerWidth >= 768) {
-      ctaRef.current.style.transform = 'scale(1.05)';
-      ctaRef.current.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5)';
-    }
-  };
-
-  const handleCTALeave = (e) => {
-    if (ctaRef.current) {
-      ctaRef.current.style.transform = 'scale(1)';
-      ctaRef.current.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.3)';
-    }
-  };
+    setIsMobileMenuOpen(false);
+  }, [location]);
 
   return (
-    <>
-      <div ref={particleContainerRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 100 }} />
-
-      <nav
-        ref={navRef}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          zIndex: 50,
-          background: 'rgba(10, 10, 10, 0.7)',
-          backdropFilter: 'blur(0px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-          height: window.innerWidth < 768 ? '64px' : '80px'
-        }}
-      >
+    <nav
+      ref={navRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 1000,
+        background: isScrolled ? 'rgba(10, 10, 10, 0.95)' : 'rgba(10, 10, 10, 0.8)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        height: '70px'
+      }}
+    >
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '0 1.5rem',
+        height: '100%'
+      }}>
         <div style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '0 1rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           height: '100%'
         }}>
+          {/* Logo */}
+          <Link
+            ref={logoRef}
+            to="/"
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: 'white',
+              textDecoration: 'none',
+              letterSpacing: '-0.05em',
+              opacity: 0,
+              display: 'inline-block',
+              transition: 'transform 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            Grid<span style={{ color: '#8b5cf6' }}>Gen</span>
+          </Link>
+
+          {/* Desktop Navigation */}
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            height: '100%'
-          }}>
-            {/* Logo */}
-            <a
-              ref={logoRef}
-              href="#"
-              style={{
-                fontSize: window.innerWidth < 640 ? '1.25rem' : '1.5rem',
-                fontWeight: 'bold',
-                color: 'white',
-                textDecoration: 'none',
-                letterSpacing: '-0.05em',
-                opacity: 0,
-                position: 'relative',
-                display: 'inline-block',
-                transition: 'transform 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (window.innerWidth >= 768) {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              Grid<span style={{ 
-                color: '#8b5cf6',
-                display: 'inline-block',
-                transition: 'transform 0.3s ease'
-              }}>Gen</span>
-            </a>
-
-            {/* Desktop Navigation */}
-            <div style={{
-              display: window.innerWidth >= 768 ? 'flex' : 'none',
-              alignItems: 'center',
-              gap: window.innerWidth >= 1024 ? '2.5rem' : '1.5rem',
-              position: 'relative'
-            }}>
-              {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
-                <a
-                  key={item}
-                  ref={(el) => (linksRef.current[i] = el)}
-                  href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
-                  onMouseMove={magnetic}
-                  style={{
-                    position: 'relative',
-                    color: '#d1d5db',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    textDecoration: 'none',
-                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                    opacity: 0,
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    resetMagnetic(e);
-                    e.currentTarget.style.color = '#d1d5db';
-                  }}
-                >
-                  {item}
-                </a>
-              ))}
-
-              <button
-                ref={ctaRef}
-                onMouseEnter={handleCTAHover}
-                onMouseLeave={handleCTALeave}
-                style={{
-                  padding: '0.625rem 1.5rem',
-                  background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '9999px',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
-                  opacity: 0,
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-              >
-                <span style={{ position: 'relative', zIndex: 1 }}>Get Started</span>
-              </button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              style={{
-                display: window.innerWidth < 768 ? 'flex' : 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                padding: '0.5rem',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'transform 0.2s ease'
-              }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.transform = 'scale(0.9)';
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              {isMobileMenuOpen ? (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              ) : (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Animated Background Pattern */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '100%',
-          background: 'radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          opacity: isScrolled ? 1 : 0,
-          transition: 'opacity 0.4s ease'
-        }} />
-      </nav>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div
-          ref={mobileMenuRef}
-          style={{
-            position: 'fixed',
-            top: '64px',
-            left: 0,
-            right: 0,
-            background: 'rgba(10, 10, 10, 0.95)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            zIndex: 40,
-            padding: '1.5rem 1rem',
-            opacity: 0
+            gap: '2rem'
           }}
-        >
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.25rem',
-            maxWidth: '1280px',
-            margin: '0 auto'
-          }}>
-            {['Home', 'Features', 'Templates', 'Docs'].map((item, i) => (
-              <a
-                key={item}
-                href={item === 'Home' ? '#' : `#${item.toLowerCase()}`}
-                onClick={() => setIsMobileMenuOpen(false)}
+          className="desktop-nav"
+          >
+            {navLinks.map((link, i) => (
+              <Link
+                key={link.name}
+                ref={(el) => (linksRef.current[i] = el)}
+                to={link.path}
                 style={{
-                  color: '#d1d5db',
-                  fontSize: '1.125rem',
+                  position: 'relative',
+                  color: location.pathname === link.path ? '#8b5cf6' : '#d1d5db',
+                  fontSize: '0.875rem',
                   fontWeight: '500',
                   textDecoration: 'none',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.5rem',
-                  transition: 'all 0.2s ease',
-                  background: 'transparent'
+                  transition: 'all 0.3s ease',
+                  opacity: 0,
+                  padding: '0.5rem 0'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-                  e.currentTarget.style.paddingLeft = '1.5rem';
+                  if (location.pathname !== link.path) {
+                    e.currentTarget.style.color = '#ffffff';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#d1d5db';
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.paddingLeft = '1rem';
+                  if (location.pathname !== link.path) {
+                    e.currentTarget.style.color = '#d1d5db';
+                  }
                 }}
               >
-                {item}
-              </a>
+                {link.name}
+                {location.pathname === link.path && (
+                  <span style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '2px',
+                    background: 'linear-gradient(90deg, #8b5cf6, #6366f1)',
+                    borderRadius: '1px'
+                  }} />
+                )}
+              </Link>
             ))}
-            
-            <button
+
+            <Link
+              to="/grid"
               style={{
-                padding: '0.875rem 1.5rem',
+                padding: '0.625rem 1.5rem',
                 background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '9999px',
-                fontSize: '1rem',
+                fontSize: '0.875rem',
                 fontWeight: '600',
                 cursor: 'pointer',
-                marginTop: '0.5rem',
+                transition: 'all 0.3s ease',
                 boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
-                transition: 'all 0.2s ease'
+                textDecoration: 'none'
               }}
-              onMouseDown={(e) => {
-                e.currentTarget.style.transform = 'scale(0.95)';
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5)';
               }}
-              onMouseUp={(e) => {
+              onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 0 20px rgba(139, 92, 246, 0.3)';
               }}
             >
               Get Started
-            </button>
+            </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="mobile-menu-btn"
+            style={{
+              display: 'none',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              padding: '0.5rem',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {isMobileMenuOpen ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div
+          className="mobile-menu"
+          style={{
+            position: 'absolute',
+            top: '70px',
+            left: 0,
+            right: 0,
+            background: 'rgba(10, 10, 10, 0.98)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}
+        >
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.path}
+              style={{
+                color: location.pathname === link.path ? '#8b5cf6' : '#d1d5db',
+                fontSize: '1rem',
+                fontWeight: '500',
+                textDecoration: 'none',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.5rem',
+                background: location.pathname === link.path ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <Link
+            to="/grid"
+            style={{
+              padding: '0.875rem 1.5rem',
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+              color: 'white',
+              borderRadius: '0.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              textDecoration: 'none',
+              textAlign: 'center',
+              marginTop: '0.5rem'
+            }}
+          >
+            Get Started
+          </Link>
         </div>
       )}
 
-      {/* Desktop Underline */}
-      <span
-        ref={underlineRef}
-        style={{
-          position: 'fixed',
-          top: '76px',
-          left: 0,
-          height: '2px',
-          background: 'linear-gradient(90deg, transparent, #8b5cf6, transparent)',
-          opacity: 0,
-          pointerEvents: 'none',
-          zIndex: 51,
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          transformOrigin: 'center',
-          transform: 'scaleX(0.8)',
-          display: window.innerWidth < 768 ? 'none' : 'block'
-        }}
-      />
-
-      {/* Glow Effect */}
-      <div
-        ref={glowRef}
-        style={{
-          position: 'fixed',
-          top: '40px',
-          left: 0,
-          width: '150px',
-          height: '150px',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%)',
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          zIndex: 49,
-          opacity: 0,
-          filter: 'blur(40px)',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: 'translate(-50%, -50%) scale(0.8)',
-          display: window.innerWidth < 768 ? 'none' : 'block'
-        }}
-      />
-    </>
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav {
+            display: none !important;
+          }
+          .mobile-menu-btn {
+            display: flex !important;
+          }
+        }
+      `}</style>
+    </nav>
   );
 };
 

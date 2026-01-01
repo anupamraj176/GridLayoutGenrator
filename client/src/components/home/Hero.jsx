@@ -14,6 +14,7 @@ const TEMPLATES = [
     gradient: "linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(88, 28, 135, 0.8) 100%)",
     borderColor: "rgba(147, 51, 234, 0.3)",
     accentColor: "#a855f7",
+    path: "/cyber-grid"
   },
   {
     id: 2,
@@ -22,14 +23,16 @@ const TEMPLATES = [
     gradient: "linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(30, 58, 138, 0.8) 100%)",
     borderColor: "rgba(59, 130, 246, 0.3)",
     accentColor: "#3b82f6",
+    path: "/fluid-mesh"
   },
   {
     id: 3,
-    title: "Eco System",
-    subtitle: "Natural Balance",
+    title: "Classic Grid",
+    subtitle: "Clean Design",
     gradient: "linear-gradient(135deg, rgba(5, 150, 105, 0.2) 0%, rgba(6, 78, 59, 0.8) 100%)",
     borderColor: "rgba(16, 185, 129, 0.3)",
     accentColor: "#10b981",
+    path: "/grid"
   }
 ];
 
@@ -192,8 +195,6 @@ const Hero = () => {
     };
     animateCircle();
 
-    // Horizontal scroll handled by GSAP
-
     // Cursor glow
     const moveGlow = (e) => {
       if (glowRef.current) {
@@ -209,7 +210,7 @@ const Hero = () => {
   }, []);
 
   useGSAP(() => {
-    const scrollTween = gsap.to(scrollTrackRef.current, {
+    gsap.to(scrollTrackRef.current, {
       x: () => -(scrollTrackRef.current.scrollWidth - window.innerWidth),
       ease: "none",
       scrollTrigger: {
@@ -335,6 +336,7 @@ const Hero = () => {
         }}
       />
 
+      {/* Hero Section */}
       <section style={{
         position: 'relative',
         height: '100vh',
@@ -447,8 +449,8 @@ const Hero = () => {
             gap: '1.5rem',
             flexWrap: 'wrap'
           }}>
-            <a
-              href="/grid"
+            <Link
+              to="/grid"
               onMouseMove={magnetic}
               onMouseLeave={resetMagnetic}
               style={{
@@ -473,7 +475,7 @@ const Hero = () => {
               }}
             >
               Start Creating
-            </a>
+            </Link>
 
             <button
               onMouseMove={magnetic}
@@ -482,6 +484,7 @@ const Hero = () => {
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
               }}
               onMouseLeave={(e) => {
+                resetMagnetic(e);
                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
               }}
@@ -504,6 +507,7 @@ const Hero = () => {
         </div>
       </section>
 
+      {/* Horizontal Scroll Template Section */}
       <section 
         ref={scrollSectionRef} 
         style={{
@@ -677,71 +681,180 @@ const Hero = () => {
                   {item.subtitle}
                 </p>
 
-                {item.title === 'Cyber Grid' ? (
-                  <Link
-                    to="/cyber-grid"
-                    onMouseMove={handleButtonMove}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = item.accentColor;
-                      e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={handleButtonLeave}
-                    style={{
-                      display: 'inline-block',
-                      padding: '0.875rem 2rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: `2px solid ${item.accentColor}`,
-                      borderRadius: '9999px',
-                      color: 'white',
-                      fontSize: '0.875rem',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      backdropFilter: 'blur(10px)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      boxShadow: `0 0 20px ${item.accentColor}40`,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      textDecoration: 'none'
-                    }}
-                  >
-                    Explore Template →
-                  </Link>
-                ) : (
-                  <button
-                    onMouseMove={handleButtonMove}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = item.accentColor;
-                      e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={handleButtonLeave}
-                    style={{
-                      padding: '0.875rem 2rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: `2px solid ${item.accentColor}`,
-                      borderRadius: '9999px',
-                      color: 'white',
-                      fontSize: '0.875rem',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      backdropFilter: 'blur(10px)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      boxShadow: `0 0 20px ${item.accentColor}40`,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
-                    Explore Template →
-                  </button>
-                )}
+                <Link
+                  to={item.path}
+                  onMouseMove={handleButtonMove}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = item.accentColor;
+                    e.currentTarget.style.boxShadow = `0 10px 40px ${item.accentColor}60, 0 0 60px ${item.accentColor}40`;
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={handleButtonLeave}
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.875rem 2rem',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: `2px solid ${item.accentColor}`,
+                    borderRadius: '9999px',
+                    color: 'white',
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    backdropFilter: 'blur(10px)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: `0 0 20px ${item.accentColor}40`,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Explore Template →
+                </Link>
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section style={{
+        padding: '6rem 2rem',
+        background: '#0a0a0a'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          textAlign: 'center'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(2rem, 4vw, 3rem)',
+            fontWeight: 'bold',
+            marginBottom: '1rem',
+            background: 'linear-gradient(135deg, #ffffff 0%, #9ca3af 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Create Beautiful Grid Layouts
+          </h2>
+          <p style={{
+            color: '#9ca3af',
+            fontSize: '1.125rem',
+            maxWidth: '600px',
+            margin: '0 auto 4rem'
+          }}>
+            Design responsive CSS grid layouts visually with drag-and-drop simplicity
+          </p>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem'
+          }}>
+            {/* Feature Card 1 */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px dashed rgba(99, 102, 241, 0.3)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                borderRadius: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1.5rem',
+                fontSize: '1.5rem'
+              }}>
+                🎯
+              </div>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem',
+                color: 'white'
+              }}>
+                Drag & Drop
+              </h3>
+              <p style={{ color: '#9ca3af', lineHeight: '1.6' }}>
+                Click to add items and drag the corner handle to resize. No coding required.
+              </p>
+            </div>
+
+            {/* Feature Card 2 */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px dashed rgba(139, 92, 246, 0.3)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+                borderRadius: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1.5rem',
+                fontSize: '1.5rem'
+              }}>
+                📋
+              </div>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem',
+                color: 'white'
+              }}>
+                Copy Code
+              </h3>
+              <p style={{ color: '#9ca3af', lineHeight: '1.6' }}>
+                Get clean HTML and CSS code instantly. Just copy and paste into your project.
+              </p>
+            </div>
+
+            {/* Feature Card 3 */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px dashed rgba(16, 185, 129, 0.3)',
+              borderRadius: '1rem',
+              padding: '2rem',
+              transition: 'all 0.3s ease'
+            }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                borderRadius: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1.5rem',
+                fontSize: '1.5rem'
+              }}>
+                ⚡
+              </div>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem',
+                color: 'white'
+              }}>
+                Real-time Preview
+              </h3>
+              <p style={{ color: '#9ca3af', lineHeight: '1.6' }}>
+                See your changes instantly as you design. What you see is what you get.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

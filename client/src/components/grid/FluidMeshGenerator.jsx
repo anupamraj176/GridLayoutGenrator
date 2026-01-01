@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const CyberGridGenerator = () => {
+const FluidMeshGenerator = () => {
   const [rows, setRows] = useState(5);
   const [cols, setCols] = useState(5);
   const [gap, setGap] = useState(8);
@@ -12,13 +12,13 @@ const CyberGridGenerator = () => {
   const glowRef = useRef(null);
 
   const THEME = {
-    accent: "#a855f7",
-    accentGlow: "rgba(168, 85, 247, 0.4)",
+    accent: "#3b82f6",
+    accentGlow: "rgba(59, 130, 246, 0.4)",
     bg: "#0a0a0a",
-    cellBg: "rgba(168, 85, 247, 0.2)",
-    cellHover: "rgba(168, 85, 247, 0.3)",
-    itemBg: "linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%)",
-    itemBorder: "rgba(168, 85, 247, 0.5)"
+    cellBg: "rgba(59, 130, 246, 0.15)",
+    cellHover: "rgba(59, 130, 246, 0.25)",
+    itemBg: "linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%)",
+    itemBorder: "rgba(59, 130, 246, 0.5)"
   };
 
   const getOccupiedCells = () => {
@@ -167,17 +167,17 @@ const CyberGridGenerator = () => {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
         <h1 style={{
           textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem',
-          background: `linear-gradient(135deg, ${THEME.accent} 0%, #6366f1 100%)`,
+          background: `linear-gradient(135deg, ${THEME.accent} 0%, #1e40af 100%)`,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
         }}>
-          Cyber Grid Generator
+          Fluid Mesh Generator
         </h1>
 
         {/* Controls */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
           {[['Cols', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
             <div key={label} style={{
-              background: 'rgba(168, 85, 247, 0.1)', border: `1px solid ${THEME.itemBorder}`,
+              background: 'rgba(59, 130, 246, 0.1)', border: `1px solid ${THEME.itemBorder}`,
               padding: '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
             }}>
               <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{label}</span>
@@ -193,7 +193,7 @@ const CyberGridGenerator = () => {
         <div ref={gridRef} style={{
           display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`,
           gap: `${gap}px`, aspectRatio: '1', maxWidth: '700px', margin: '0 auto',
-          background: 'rgba(168, 85, 247, 0.05)', border: `1px solid ${THEME.itemBorder}`,
+          background: 'rgba(59, 130, 246, 0.05)', border: `1px solid ${THEME.itemBorder}`,
           borderRadius: '1rem', padding: '1rem', userSelect: resizing ? 'none' : 'auto'
         }}>
           {Array.from({ length: rows * cols }).map((_, index) => {
@@ -206,7 +206,7 @@ const CyberGridGenerator = () => {
                   gridRow: row, gridColumn: col, background: isOccupied ? 'transparent' : THEME.cellBg,
                   borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: isOccupied ? 'default' : 'pointer', transition: 'all 0.2s ease',
-                  color: 'rgba(168, 85, 247, 0.5)', fontSize: '1.5rem', fontWeight: '300'
+                  color: 'rgba(59, 130, 246, 0.5)', fontSize: '1.5rem', fontWeight: '300'
                 }}
                 onMouseEnter={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellHover; }}
                 onMouseLeave={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellBg; }}
@@ -244,7 +244,7 @@ const CyberGridGenerator = () => {
         {/* Reset */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', maxWidth: '700px', margin: '1rem auto 0' }}>
           <button onClick={() => { setItems([]); setNextId(1); }} style={{
-            padding: '0.5rem 1.5rem', background: 'rgba(168, 85, 247, 0.1)', border: `1px solid ${THEME.itemBorder}`,
+            padding: '0.5rem 1.5rem', background: 'rgba(59, 130, 246, 0.1)', border: `1px solid ${THEME.itemBorder}`,
             borderRadius: '0.375rem', color: THEME.accent, cursor: 'pointer', fontSize: '0.875rem', fontWeight: '500'
           }}>Reset</button>
         </div>
@@ -275,4 +275,4 @@ const CyberGridGenerator = () => {
   );
 };
 
-export default CyberGridGenerator;
+export default FluidMeshGenerator;
