@@ -5,19 +5,20 @@
 User-agent: *
 Allow: /
 
-# Sitemap location (update with your domain)
-Sitemap: https://yourdomain.com/sitemap.xml
+# Sitemap location
+Sitemap: https://grid-layout-generator.vercel.app/sitemap.xml
 
-# Crawl-delay for polite crawling
-Crawl-delay: 1
-
-# Disallow development/admin paths
-Disallow: /api/
-Disallow: /_
+# Disallow development paths
 Disallow: /node_modules/
 
-# Allow important pages
+# Allow all pages
 Allow: /
+Allow: /grid
+Allow: /cyber-grid
+Allow: /fluid-mesh
+Allow: /classic-grid
+Allow: /presets
+Allow: /docs
 Allow: /grid
 Allow: /cyber-grid
 Allow: /fluid-mesh

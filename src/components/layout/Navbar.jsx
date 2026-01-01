@@ -11,10 +11,9 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Grid Generator', path: '/grid' },
-    { name: 'Cyber Grid', path: '/cyber-grid' },
-    { name: 'Fluid Mesh', path: '/fluid-mesh' },
-    { name: 'Classic Grid', path: '/classic-grid' }
+    { name: 'Generator', path: '/grid' },
+    { name: 'Presets', path: '/presets' },
+    { name: 'Docs', path: '/docs' }
   ];
 
   useEffect(() => {

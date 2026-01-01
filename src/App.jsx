@@ -6,6 +6,8 @@ import GridGenerator from './components/grid/GridGenerator';
 import CyberGridGenerator from './components/grid/CyberGridGenerator';
 import FluidMeshGenerator from './components/grid/FluidMeshGenerator';
 import ClassicGridGenerator from './components/grid/ClassicGridGenerator';
+import Presets from './pages/Presets';
+import Docs from './pages/Docs';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/cyber-grid" element={<CyberGridGenerator />} />
           <Route path="/fluid-mesh" element={<FluidMeshGenerator />} />
           <Route path="/classic-grid" element={<ClassicGridGenerator />} />
+          <Route path="/presets" element={<Presets />} />
+          <Route path="/docs" element={<Docs />} />
         </Route>
       </Routes>
     </Router>
