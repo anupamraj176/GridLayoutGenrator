@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Toast from '../ui/Toast';
 
 const FluidMeshGenerator = () => {
   const [rows, setRows] = useState(5);
@@ -7,7 +8,10 @@ const FluidMeshGenerator = () => {
   const [items, setItems] = useState([]);
   const [nextId, setNextId] = useState(1);
   const [showCopied, setShowCopied] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
   const [resizing, setResizing] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const gridRef = useRef(null);
   const glowRef = useRef(null);
 
@@ -118,6 +122,12 @@ const FluidMeshGenerator = () => {
   }, [resizing, items, rows, cols]);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
     
     const moveGlow = (e) => { mouseX = e.clientX; mouseY = e.clientY; };
@@ -152,6 +162,8 @@ const FluidMeshGenerator = () => {
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
     setShowCopied(type);
+    setToastMessage(`${type.toUpperCase()} copied to clipboard!`);
+    setShowToast(true);
     setTimeout(() => setShowCopied(null), 2000);
   };
 
@@ -174,11 +186,11 @@ const FluidMeshGenerator = () => {
         </h1>
 
         {/* Controls */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
           {[['Cols', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
             <div key={label} style={{
               background: 'rgba(59, 130, 246, 0.1)', border: `1px solid ${THEME.itemBorder}`,
-              padding: '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
+              padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
             }}>
               <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{label}</span>
               <input type="number" value={value}
@@ -250,11 +262,11 @@ const FluidMeshGenerator = () => {
         </div>
 
         {/* Code Output */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1000px', margin: '3rem auto 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1.5rem' : '2rem', maxWidth: '1000px', margin: '3rem auto 0', padding: isMobile ? '0 1rem' : 0 }}>
           {[['HTML', html, 'html'], ['CSS', css, 'css']].map(([label, code, type]) => (
             <div key={type} style={{
               background: 'rgba(0, 0, 0, 0.5)', border: `1px solid ${THEME.itemBorder}`,
-              borderRadius: '0.75rem', padding: '1.5rem', backdropFilter: 'blur(10px)'
+              borderRadius: '0.75rem', padding: isMobile ? '1rem' : '1.5rem', backdropFilter: 'blur(10px)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
                 <button onClick={() => copyToClipboard(code, type)} style={{
@@ -271,7 +283,12 @@ const FluidMeshGenerator = () => {
           ))}
         </div>
       </div>
-    </div>
+      <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
+        accentColor={THEME.accent}
+      />    </div>
   );
 };
 
