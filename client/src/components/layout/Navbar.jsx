@@ -13,7 +13,8 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Grid Generator', path: '/grid' },
     { name: 'Cyber Grid', path: '/cyber-grid' },
-    { name: 'Fluid Mesh', path: '/fluid-mesh' }
+    { name: 'Fluid Mesh', path: '/fluid-mesh' },
+    { name: 'Classic Grid', path: '/classic-grid' }
   ];
 
   useEffect(() => {

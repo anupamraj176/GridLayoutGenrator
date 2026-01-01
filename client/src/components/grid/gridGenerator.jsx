@@ -12,16 +12,13 @@ const GridGenerator = () => {
   const glowRef = useRef(null);
 
   const THEME = {
-    bg: '#0a0a0a',
-    accent: '#6366f1',
-    accentGlow: 'rgba(99, 102, 241, 0.4)',
-    cellBg: 'rgba(99, 102, 241, 0.1)',
-    cellHover: 'rgba(99, 102, 241, 0.2)',
-    itemBg: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%)',
-    itemBorder: 'rgba(99, 102, 241, 0.5)',
-    panelBg: 'rgba(255, 255, 255, 0.03)',
-    text: '#ffffff',
-    textMuted: '#9ca3af'
+    accent: "#6366f1",
+    accentGlow: "rgba(99, 102, 241, 0.4)",
+    bg: "#0a0a0a",
+    cellBg: "rgba(99, 102, 241, 0.15)",
+    cellHover: "rgba(99, 102, 241, 0.25)",
+    itemBg: "linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%)",
+    itemBorder: "rgba(99, 102, 241, 0.5)"
   };
 
   const getOccupiedCells = () => {
@@ -121,109 +118,121 @@ const GridGenerator = () => {
   };
 
   return (
-    <div style={{ background: THEME.bg, minHeight: '100vh', color: THEME.text, paddingTop: '90px', position: 'relative', overflow: 'hidden' }}>
-      {/* Cursor Glow */}
-      <div ref={glowRef} style={{ position: 'fixed', top: 0, left: 0, width: '400px', height: '400px', transform: 'translate(-50%, -50%)', background: `radial-gradient(circle, ${THEME.accentGlow} 0%, transparent 70%)`, borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0 }} />
-      
-      {/* Background blobs */}
-      <div style={{ position: 'fixed', top: '20%', left: '5%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(100px)', zIndex: 0 }} />
+    <div style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: '100px' }}>
+      <div ref={glowRef} style={{
+        position: 'fixed', top: 0, left: 0, width: '400px', height: '400px',
+        transform: 'translate(-50%, -50%)',
+        background: `radial-gradient(circle, ${THEME.accentGlow} 0%, transparent 70%)`,
+        borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0
+      }} />
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 'bold', marginBottom: '0.5rem', background: `linear-gradient(135deg, #ffffff 0%, ${THEME.textMuted} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            CSS Grid Generator
-          </h1>
-          <p style={{ color: THEME.textMuted, fontSize: '1rem' }}>Click cells to create boxes, drag the corner to resize</p>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
+        <h1 style={{
+          textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem',
+          background: `linear-gradient(135deg, ${THEME.accent} 0%, #8b5cf6 100%)`,
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+        }}>
+          CSS Grid Generator
+        </h1>
+
+        {/* Controls */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+          {[['Cols', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
+            <div key={label} style={{
+              background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`,
+              padding: '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
+            }}>
+              <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{label}</span>
+              <input type="number" value={value}
+                onChange={(e) => setter(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))}
+                style={{ width: '50px', background: 'transparent', border: 'none', color: THEME.accent, fontSize: '1rem', textAlign: 'center', outline: 'none', fontWeight: '600' }}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* Two Column Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem', alignItems: 'start' }}>
-          
-          {/* Left Column - Grid */}
-          <div>
-            {/* Controls */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-              {[['Columns', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
-                <div key={label} style={{ background: THEME.panelBg, border: `1px solid ${THEME.itemBorder}`, padding: '0.5rem 1rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(10px)' }}>
-                  <span style={{ color: THEME.textMuted, fontSize: '0.8rem' }}>{label}</span>
-                  <input type="number" value={value} onChange={(e) => setter(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))} style={{ width: '45px', background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`, borderRadius: '0.375rem', color: THEME.accent, fontSize: '0.9rem', textAlign: 'center', outline: 'none', fontWeight: '600', padding: '0.25rem' }} />
-                </div>
-              ))}
-              <button onClick={() => { setItems([]); setNextId(1); }} style={{ marginLeft: 'auto', padding: '0.5rem 1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.5rem', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600' }}>Reset</button>
-            </div>
-
-            {/* Grid */}
-            <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`, gap: `${gap}px`, aspectRatio: '1', background: THEME.panelBg, border: `1px solid ${THEME.itemBorder}`, borderRadius: '1rem', padding: '1rem', backdropFilter: 'blur(10px)', boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)', userSelect: resizing ? 'none' : 'auto' }}>
-              {Array.from({ length: rows * cols }).map((_, index) => {
-                const row = Math.floor(index / cols) + 1;
-                const col = (index % cols) + 1;
-                const isOccupied = occupied.has(`${row}-${col}`);
-                return (
-                  <div key={`cell-${index}`} onClick={() => !isOccupied && handleCellClick(row, col)} style={{ gridRow: row, gridColumn: col, background: isOccupied ? 'transparent' : THEME.cellBg, borderRadius: '0.375rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isOccupied ? 'default' : 'pointer', transition: 'all 0.2s ease', color: 'rgba(99, 102, 241, 0.4)', fontSize: '1.25rem', fontWeight: '300', border: isOccupied ? 'none' : '1px dashed rgba(99, 102, 241, 0.2)' }}
-                    onMouseEnter={(e) => { if (!isOccupied) { e.currentTarget.style.background = THEME.cellHover; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)'; } }}
-                    onMouseLeave={(e) => { if (!isOccupied) { e.currentTarget.style.background = THEME.cellBg; e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)'; } }}>
-                    {!isOccupied && '+'}
-                  </div>
-                );
-              })}
-              {items.map((item, index) => (
-                <div key={item.id} style={{ gridColumn: `${item.colStart} / span ${item.colSpan}`, gridRow: `${item.rowStart} / span ${item.rowSpan}`, background: THEME.itemBg, borderRadius: '0.5rem', border: `2px solid ${THEME.itemBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', fontWeight: '600', color: 'white', position: 'relative', boxShadow: `0 0 25px ${THEME.accentGlow}`, zIndex: 10 }}>
-                  {index + 1}
-                  <button onClick={(e) => handleDelete(item.id, e)} style={{ position: 'absolute', top: '4px', right: '4px', width: '20px', height: '20px', background: '#ef4444', border: 'none', borderRadius: '4px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', zIndex: 20 }}>×</button>
-                  <div onMouseDown={(e) => handleResizeStart(item.id, e)} style={{ position: 'absolute', bottom: '4px', right: '4px', width: '14px', height: '14px', cursor: 'nwse-resize', color: 'rgba(255,255,255,0.6)', zIndex: 20, background: 'rgba(99, 102, 241, 0.3)', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="8" height="8" viewBox="0 0 10 10"><path d="M9 1L1 9M9 5L5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Column - Code Panels */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'sticky', top: '100px' }}>
-            {/* HTML Panel */}
-            <div style={{ background: THEME.panelBg, border: `1px solid ${THEME.itemBorder}`, borderRadius: '1rem', padding: '1.25rem', backdropFilter: 'blur(10px)', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: `1px solid ${THEME.itemBorder}` }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: THEME.accent, textTransform: 'uppercase', letterSpacing: '0.1em' }}>HTML</span>
-                <button onClick={() => copyToClipboard(html, 'html')} style={{ padding: '0.375rem 0.75rem', background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`, borderRadius: '0.375rem', color: THEME.accent, cursor: 'pointer', fontSize: '0.7rem', fontWeight: '600' }}>
-                  {showCopied === 'html' ? '✓ Copied!' : 'Copy'}
-                </button>
+        {/* Grid */}
+        <div ref={gridRef} style={{
+          display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`,
+          gap: `${gap}px`, aspectRatio: '1', maxWidth: '700px', margin: '0 auto',
+          background: 'rgba(99, 102, 241, 0.05)', border: `1px solid ${THEME.itemBorder}`,
+          borderRadius: '1rem', padding: '1rem', userSelect: resizing ? 'none' : 'auto'
+        }}>
+          {Array.from({ length: rows * cols }).map((_, index) => {
+            const row = Math.floor(index / cols) + 1;
+            const col = (index % cols) + 1;
+            const isOccupied = occupied.has(`${row}-${col}`);
+            return (
+              <div key={`cell-${index}`} onClick={() => !isOccupied && handleCellClick(row, col)}
+                style={{
+                  gridRow: row, gridColumn: col, background: isOccupied ? 'transparent' : THEME.cellBg,
+                  borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: isOccupied ? 'default' : 'pointer', transition: 'all 0.2s ease',
+                  color: 'rgba(99, 102, 241, 0.5)', fontSize: '1.5rem', fontWeight: '300'
+                }}
+                onMouseEnter={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellHover; }}
+                onMouseLeave={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellBg; }}
+              >
+                {!isOccupied && '+'}
               </div>
-              <pre style={{ fontSize: '0.75rem', fontFamily: "'Fira Code', monospace", overflow: 'auto', maxHeight: '180px', color: '#d1d5db', lineHeight: '1.5', background: 'rgba(0, 0, 0, 0.3)', padding: '0.75rem', borderRadius: '0.5rem', margin: 0 }}>{html}</pre>
-            </div>
+            );
+          })}
 
-            {/* CSS Panel */}
-            <div style={{ background: THEME.panelBg, border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '1rem', padding: '1.25rem', backdropFilter: 'blur(10px)', boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(139, 92, 246, 0.3)' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#8b5cf6', textTransform: 'uppercase', letterSpacing: '0.1em' }}>CSS</span>
-                <button onClick={() => copyToClipboard(css, 'css')} style={{ padding: '0.375rem 0.75rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '0.375rem', color: '#8b5cf6', cursor: 'pointer', fontSize: '0.7rem', fontWeight: '600' }}>
-                  {showCopied === 'css' ? '✓ Copied!' : 'Copy'}
-                </button>
+          {items.map((item, index) => (
+            <div key={item.id} style={{
+              gridColumn: `${item.colStart} / span ${item.colSpan}`, gridRow: `${item.rowStart} / span ${item.rowSpan}`,
+              background: THEME.itemBg, borderRadius: '0.5rem', border: `2px solid ${THEME.itemBorder}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.25rem', fontWeight: '600', color: 'white', position: 'relative',
+              boxShadow: `0 0 20px ${THEME.accentGlow}`, zIndex: 10
+            }}>
+              {index + 1}
+              <button onClick={(e) => handleDelete(item.id, e)} style={{
+                position: 'absolute', top: '4px', right: '4px', width: '20px', height: '20px',
+                background: THEME.accent, border: 'none', borderRadius: '4px', color: 'white',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '12px', fontWeight: 'bold', transition: 'all 0.2s ease', zIndex: 20
+              }}>×</button>
+              <div onMouseDown={(e) => handleResizeStart(item.id, e)} style={{
+                position: 'absolute', bottom: '4px', right: '4px', width: '16px', height: '16px',
+                cursor: 'nwse-resize', color: 'rgba(255,255,255,0.6)', zIndex: 20
+              }}>
+                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M9 1L1 9M9 5L5 9M9 9L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               </div>
-              <pre style={{ fontSize: '0.75rem', fontFamily: "'Fira Code', monospace", overflow: 'auto', maxHeight: '220px', color: '#d1d5db', lineHeight: '1.5', background: 'rgba(0, 0, 0, 0.3)', padding: '0.75rem', borderRadius: '0.5rem', margin: 0 }}>{css}</pre>
             </div>
+          ))}
+        </div>
 
-            {/* Tips */}
-            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '0.75rem', padding: '1rem' }}>
-              <p style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: '600', marginBottom: '0.5rem' }}>💡 Tips</p>
-              <ul style={{ fontSize: '0.7rem', color: THEME.textMuted, lineHeight: '1.6', margin: 0, paddingLeft: '1rem' }}>
-                <li>Click any cell to add a grid item</li>
-                <li>Drag the corner handle to resize</li>
-                <li>Click × to delete an item</li>
-              </ul>
+        {/* Reset */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', maxWidth: '700px', margin: '1rem auto 0' }}>
+          <button onClick={() => { setItems([]); setNextId(1); }} style={{
+            padding: '0.5rem 1.5rem', background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`,
+            borderRadius: '0.375rem', color: THEME.accent, cursor: 'pointer', fontSize: '0.875rem', fontWeight: '500'
+          }}>Reset</button>
+        </div>
+
+        {/* Code Output */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', maxWidth: '1000px', margin: '3rem auto 0' }}>
+          {[['HTML', html, 'html'], ['CSS', css, 'css']].map(([label, code, type]) => (
+            <div key={type} style={{
+              background: 'rgba(0, 0, 0, 0.5)', border: `1px solid ${THEME.itemBorder}`,
+              borderRadius: '0.75rem', padding: '1.5rem', backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                <button onClick={() => copyToClipboard(code, type)} style={{
+                  padding: '0.5rem 1.5rem', background: THEME.accent, border: 'none',
+                  borderRadius: '0.375rem', color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600'
+                }}>{showCopied === type ? '✓ Copied!' : `Copy ${label}`}</button>
+              </div>
+              <pre style={{
+                fontSize: '0.8125rem', fontFamily: "'Fira Code', monospace", overflow: 'auto',
+                maxHeight: '200px', color: '#d1d5db', lineHeight: '1.6', background: 'rgba(0,0,0,0.3)',
+                padding: '1rem', borderRadius: '0.5rem', margin: 0
+              }}>{code}</pre>
             </div>
-          </div>
+          ))}
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 900px) {
-          div[style*="grid-template-columns: 1fr 380px"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
