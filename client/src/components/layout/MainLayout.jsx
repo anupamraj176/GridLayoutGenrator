@@ -5,7 +5,7 @@ import Footer from './Footer';
 
 const MainLayout = () => {
   const location = useLocation();
-  const isGridPage = location.pathname === '/grid';
+  const isHomePage = location.pathname === '/';
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -13,7 +13,7 @@ const MainLayout = () => {
       <main>
         <Outlet />
       </main>
-      {!isGridPage && <Footer />}
+      {isHomePage && <Footer />}
     </div>
   );
 };

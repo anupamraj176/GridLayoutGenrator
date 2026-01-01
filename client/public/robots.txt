@@ -1,0 +1,24 @@
+# Grid Layout Generator - robots.txt
+# https://www.robotstxt.org/
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemap location (update with your domain)
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Disallow development/admin paths
+Disallow: /api/
+Disallow: /_
+Disallow: /node_modules/
+
+# Allow important pages
+Allow: /
+Allow: /grid
+Allow: /cyber-grid
+Allow: /fluid-mesh
+Allow: /classic-grid

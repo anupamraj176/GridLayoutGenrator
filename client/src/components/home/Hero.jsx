@@ -32,7 +32,7 @@ const TEMPLATES = [
     gradient: "linear-gradient(135deg, rgba(5, 150, 105, 0.2) 0%, rgba(6, 78, 59, 0.8) 100%)",
     borderColor: "rgba(16, 185, 129, 0.3)",
     accentColor: "#10b981",
-    path: "/grid"
+    path: "/classic-grid"
   }
 ];
 

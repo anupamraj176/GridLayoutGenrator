@@ -5,6 +5,7 @@ import Hero from './components/home/Hero';
 import GridGenerator from './components/grid/GridGenerator';
 import CyberGridGenerator from './components/grid/CyberGridGenerator';
 import FluidMeshGenerator from './components/grid/FluidMeshGenerator';
+import ClassicGridGenerator from './components/grid/ClassicGridGenerator';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/grid" element={<GridGenerator />} />
           <Route path="/cyber-grid" element={<CyberGridGenerator />} />
           <Route path="/fluid-mesh" element={<FluidMeshGenerator />} />
+          <Route path="/classic-grid" element={<ClassicGridGenerator />} />
         </Route>
       </Routes>
     </Router>
