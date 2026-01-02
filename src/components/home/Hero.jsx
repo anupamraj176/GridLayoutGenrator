@@ -61,7 +61,7 @@ const Hero = () => {
       meshRef.current.appendChild(canvas);
 
       const particles = [];
-      const particleCount = 50;
+      const particleCount = 30; // Reduced from 50 to 30 for better performance
 
       for (let i = 0; i < particleCount; i++) {
         particles.push({
@@ -72,6 +72,7 @@ const Hero = () => {
         });
       }
 
+      let animationId;
       const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = 'rgba(99, 102, 241, 0.1)';
@@ -105,12 +106,22 @@ const Hero = () => {
           });
         });
 
-        requestAnimationFrame(animate);
+        animationId = requestAnimationFrame(animate);
       };
       animate();
+
+      return () => {
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+        }
+        if (canvas && canvas.parentNode) {
+          canvas.parentNode.removeChild(canvas);
+        }
+      };
     };
 
-    createMesh();
+    const cleanup = createMesh();
+    return cleanup;
 
     // Title character animation
     setTimeout(() => {
@@ -258,7 +269,8 @@ const Hero = () => {
       shine.style.opacity = '1';
     }
 
-    if (Math.random() > 0.92) {
+    // Reduced particle frequency from 0.92 to 0.95 for better performance
+    if (Math.random() > 0.95) {
       createParticle(e.clientX, e.clientY, TEMPLATES[index].accentColor);
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Toast from '../ui/Toast';
 
 const ClassicGridGenerator = () => {
@@ -14,6 +14,7 @@ const ClassicGridGenerator = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const gridRef = useRef(null);
   const glowRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   const THEME = {
     accent: "#10b981",
@@ -25,19 +26,19 @@ const ClassicGridGenerator = () => {
     itemBorder: "rgba(16, 185, 129, 0.5)"
   };
 
-  const getOccupiedCells = () => {
-    const occupied = new Set();
+  const occupied = useMemo(() => {
+    const occupiedSet = new Set();
     items.forEach(item => {
       for (let r = item.rowStart; r < item.rowStart + item.rowSpan; r++) {
         for (let c = item.colStart; c < item.colStart + item.colSpan; c++) {
-          occupied.add(`${r}-${c}`);
+          occupiedSet.add(`${r}-${c}`);
         }
       }
     });
-    return occupied;
-  };
+    return occupiedSet;
+  }, [items]);
 
-  const getCellFromPosition = (clientX, clientY) => {
+  const getCellFromPosition = useCallback((clientX, clientY) => {
     if (!gridRef.current) return null;
     const rect = gridRef.current.getBoundingClientRect();
     const cellWidth = rect.width / cols;
@@ -45,26 +46,25 @@ const ClassicGridGenerator = () => {
     const col = Math.floor((clientX - rect.left) / cellWidth) + 1;
     const row = Math.floor((clientY - rect.top) / cellHeight) + 1;
     return { row: Math.max(1, Math.min(row, rows)), col: Math.max(1, Math.min(col, cols)) };
-  };
+  }, [cols, rows]);
 
-  const handleCellClick = (row, col) => {
-    const occupied = getOccupiedCells();
+  const handleCellClick = useCallback((row, col) => {
     if (occupied.has(`${row}-${col}`)) return;
-    setItems([...items, { id: nextId, rowStart: row, colStart: col, rowSpan: 1, colSpan: 1 }]);
-    setNextId(nextId + 1);
-  };
+    setItems(prevItems => [...prevItems, { id: nextId, rowStart: row, colStart: col, rowSpan: 1, colSpan: 1 }]);
+    setNextId(prevId => prevId + 1);
+  }, [occupied, nextId]);
 
-  const handleDelete = (id, e) => {
+  const handleDelete = useCallback((id, e) => {
     e.stopPropagation();
-    setItems(items.filter(item => item.id !== id));
-  };
+    setItems(prevItems => prevItems.filter(item => item.id !== id));
+  }, []);
 
-  const handleResizeStart = (id, e) => {
+  const handleResizeStart = useCallback((id, e) => {
     e.stopPropagation();
     e.preventDefault();
     const item = items.find(i => i.id === id);
     if (item) setResizing({ id, item: { ...item } });
-  };
+  }, [items]);
 
   useEffect(() => {
     if (!resizing) return;
@@ -74,22 +74,37 @@ const ClassicGridGenerator = () => {
       const item = resizing.item;
       const newColSpan = Math.max(1, cell.col - item.colStart + 1);
       const newRowSpan = Math.max(1, cell.row - item.rowStart + 1);
-      const canResize = () => {
-        for (let r = item.rowStart; r < item.rowStart + newRowSpan; r++) {
-          for (let c = item.colStart; c < item.colStart + newColSpan; c++) {
-            if (r > rows || c > cols) return false;
-            if (items.find(i => i.id !== resizing.id && r >= i.rowStart && r < i.rowStart + i.rowSpan && c >= i.colStart && c < i.colStart + i.colSpan)) return false;
-          }
+      
+      // Early exit if bounds are exceeded
+      if (item.rowStart + newRowSpan - 1 > rows || item.colStart + newColSpan - 1 > cols) return;
+      
+      // Check for overlaps
+      let canResize = true;
+      for (let r = item.rowStart; r < item.rowStart + newRowSpan && canResize; r++) {
+        for (let c = item.colStart; c < item.colStart + newColSpan && canResize; c++) {
+          const overlapping = items.find(i => 
+            i.id !== resizing.id && 
+            r >= i.rowStart && r < i.rowStart + i.rowSpan && 
+            c >= i.colStart && c < i.colStart + i.colSpan
+          );
+          if (overlapping) canResize = false;
         }
-        return true;
-      };
-      if (canResize()) setItems(items.map(i => i.id === resizing.id ? { ...i, colSpan: newColSpan, rowSpan: newRowSpan } : i));
+      }
+      
+      if (canResize) {
+        setItems(prevItems => prevItems.map(i => 
+          i.id === resizing.id ? { ...i, colSpan: newColSpan, rowSpan: newRowSpan } : i
+        ));
+      }
     };
     const handleMouseUp = () => setResizing(null);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-    return () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-  }, [resizing, items, rows, cols]);
+    return () => { 
+      window.removeEventListener('mousemove', handleMouseMove); 
+      window.removeEventListener('mouseup', handleMouseUp); 
+    };
+  }, [resizing, items, rows, cols, getCellFromPosition]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -103,31 +118,38 @@ const ClassicGridGenerator = () => {
     const updateGlow = () => {
       currentX += (mouseX - currentX) * 0.1;
       currentY += (mouseY - currentY) * 0.1;
-      if (glowRef.current) { glowRef.current.style.left = `${currentX}px`; glowRef.current.style.top = `${currentY}px`; }
-      requestAnimationFrame(updateGlow);
+      if (glowRef.current) { 
+        glowRef.current.style.left = `${currentX}px`; 
+        glowRef.current.style.top = `${currentY}px`; 
+      }
+      animationFrameRef.current = requestAnimationFrame(updateGlow);
     };
     window.addEventListener('mousemove', moveGlow);
-    updateGlow();
-    return () => window.removeEventListener('mousemove', moveGlow);
+    animationFrameRef.current = requestAnimationFrame(updateGlow);
+    return () => {
+      window.removeEventListener('mousemove', moveGlow);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
-  const generateCode = () => {
-    const html = `<div class="parent">\n${items.map((_, i) => `    <div class="div${i + 1}">${i + 1}</div>`).join('\n')}\n</div>`;
-    let css = `.parent {\n  display: grid;\n  grid-template-columns: repeat(${cols}, 1fr);\n  grid-template-rows: repeat(${rows}, 1fr);\n  gap: ${gap}px;\n}\n`;
-    items.forEach((item, i) => { css += `\n.div${i + 1} { grid-area: ${item.rowStart} / ${item.colStart} / ${item.rowStart + item.rowSpan} / ${item.colStart + item.colSpan}; }`; });
-    return { html, css };
-  };
+  const { html, css } = useMemo(() => {
+    const htmlCode = `<div class="parent">\n${items.map((_, i) => `    <div class="div${i + 1}">${i + 1}</div>`).join('\n')}\n</div>`;
+    let cssCode = `.parent {\n  display: grid;\n  grid-template-columns: repeat(${cols}, 1fr);\n  grid-template-rows: repeat(${rows}, 1fr);\n  gap: ${gap}px;\n}\n`;
+    items.forEach((item, i) => { 
+      cssCode += `\n.div${i + 1} { grid-area: ${item.rowStart} / ${item.colStart} / ${item.rowStart + item.rowSpan} / ${item.colStart + item.colSpan}; }`; 
+    });
+    return { html: htmlCode, css: cssCode };
+  }, [items, cols, rows, gap]);
 
-  const { html, css } = generateCode();
-  const occupied = getOccupiedCells();
-
-  const copyToClipboard = (text, type) => {
+  const copyToClipboard = useCallback((text, type) => {
     navigator.clipboard.writeText(text);
     setShowCopied(type);
     setToastMessage(`${type.toUpperCase()} copied to clipboard!`);
     setShowToast(true);
     setTimeout(() => setShowCopied(null), 2000);
-  };
+  }, []);
 
   return (
     <div style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: '100px' }}>
