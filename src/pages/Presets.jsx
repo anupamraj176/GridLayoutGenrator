@@ -110,6 +110,7 @@ const PRESETS = [
 const Presets = () => {
   const [hoveredPreset, setHoveredPreset] = useState(null);
   const glowRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   useEffect(() => {
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
@@ -121,11 +122,16 @@ const Presets = () => {
         glowRef.current.style.left = `${currentX}px`;
         glowRef.current.style.top = `${currentY}px`;
       }
-      requestAnimationFrame(updateGlow);
+      animationFrameRef.current = requestAnimationFrame(updateGlow);
     };
     window.addEventListener('mousemove', moveGlow);
-    updateGlow();
-    return () => window.removeEventListener('mousemove', moveGlow);
+    animationFrameRef.current = requestAnimationFrame(updateGlow);
+    return () => {
+      window.removeEventListener('mousemove', moveGlow);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
   const generateCSS = (preset) => {
