@@ -114,7 +114,7 @@ const Hero = () => {
         if (animationId) {
           cancelAnimationFrame(animationId);
         }
-        if (canvas.parentNode) {
+        if (canvas && canvas.parentNode) {
           canvas.parentNode.removeChild(canvas);
         }
       };
