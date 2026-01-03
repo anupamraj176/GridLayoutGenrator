@@ -121,7 +121,6 @@ const Hero = () => {
     };
 
     const cleanup = createMesh();
-    return cleanup;
 
     // Title character animation
     setTimeout(() => {
@@ -141,7 +140,8 @@ const Hero = () => {
     }, 100);
 
     // Type writer effect
-    setTimeout(() => {
+    let typewriterTimeout;
+    const startTypewriter = () => {
       const words = ['Perfection', 'Innovation', 'Excellence'];
       let wordIndex = 0;
       let charIndex = 0;
@@ -150,18 +150,19 @@ const Hero = () => {
         if (charIndex < words[wordIndex].length) {
           setTitleText(words[wordIndex].substring(0, charIndex + 1));
           charIndex++;
-          setTimeout(typeWriter, 100);
+          typewriterTimeout = setTimeout(typeWriter, 100);
         } else {
-          setTimeout(() => {
+          typewriterTimeout = setTimeout(() => {
             charIndex = 0;
             wordIndex = (wordIndex + 1) % words.length;
             setTitleText('');
-            setTimeout(typeWriter, 500);
+            typewriterTimeout = setTimeout(typeWriter, 500);
           }, 2000);
         }
       };
       typeWriter();
-    }, 1200);
+    };
+    setTimeout(startTypewriter, 1200);
 
     // Subtitle animation
     setTimeout(() => {
@@ -217,6 +218,8 @@ const Hero = () => {
 
     return () => {
       window.removeEventListener('mousemove', moveGlow);
+      if (cleanup) cleanup();
+      if (typewriterTimeout) clearTimeout(typewriterTimeout);
     };
   }, []);
 
@@ -395,6 +398,7 @@ const Hero = () => {
         }}>
           <h1
             ref={titleRef}
+            className="hero-title"
             style={{
               fontSize: 'clamp(3.5rem, 10vw, 8rem)',
               fontWeight: 'bold',
@@ -422,9 +426,11 @@ const Hero = () => {
               color: '#6366f1',
               textShadow: '0 0 40px rgba(99, 102, 241, 0.6)',
               display: 'inline-block',
-              minWidth: '400px',
+              minWidth: '200px',
               textAlign: 'left'
-            }}>
+            }}
+            className="typewriter-text"
+            >
               {titleText}
               <span style={{
                 display: 'inline-block',
@@ -438,7 +444,8 @@ const Hero = () => {
           </h1>
 
           <p 
-            ref={subtitleRef} 
+            ref={subtitleRef}
+            className="hero-subtitle"
             style={{
               marginTop: '1.5rem',
               maxWidth: '768px',
@@ -454,7 +461,7 @@ const Hero = () => {
             Fast. Fluid. <span style={{ color: '#6366f1', fontWeight: 'bold' }}>Flawless.</span>
           </p>
 
-          <div ref={btnRef} style={{
+          <div ref={btnRef} className="hero-buttons" style={{
             marginTop: '3rem',
             display: 'flex',
             justifyContent: 'center',
@@ -521,7 +528,8 @@ const Hero = () => {
 
       {/* Horizontal Scroll Template Section */}
       <section 
-        ref={scrollSectionRef} 
+        ref={scrollSectionRef}
+        className="scroll-section"
         style={{
           position: 'relative',
           height: '100vh',
@@ -730,6 +738,107 @@ const Hero = () => {
         </div>
       </section>
 
+      {/* Mobile Templates Section */}
+      <section className="mobile-templates" style={{
+        padding: '4rem 1.5rem',
+        background: '#0f0f0f',
+        flexDirection: 'column',
+        gap: '2rem'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <p style={{
+            fontSize: '0.875rem',
+            letterSpacing: '0.1em',
+            color: '#9ca3af',
+            marginBottom: '1rem'
+          }}>
+            EXPLORE STYLES
+          </p>
+          <h2 style={{
+            fontSize: 'clamp(2rem, 6vw, 3rem)',
+            fontWeight: 'bold',
+            lineHeight: '1.2',
+            color: 'white'
+          }}>
+            Start with a{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Template
+            </span>
+          </h2>
+        </div>
+        
+        {TEMPLATES.map((item, index) => (
+          <Link
+            key={item.id}
+            to={item.path}
+            style={{
+              display: 'block',
+              width: '100%',
+              aspectRatio: '16/10',
+              borderRadius: '1rem',
+              overflow: 'hidden',
+              position: 'relative',
+              border: `1px solid ${item.borderColor}`,
+              background: item.gradient,
+              textDecoration: 'none',
+              boxShadow: `0 10px 40px ${item.accentColor}20`
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '1.5rem'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                border: `2px solid ${item.accentColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: item.accentColor,
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                background: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                color: 'white',
+                marginBottom: '0.25rem'
+              }}>
+                {item.title}
+              </h3>
+              <p style={{
+                color: '#d1d5db',
+                fontFamily: 'monospace',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                opacity: 0.8
+              }}>
+                {item.subtitle}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </section>
+
       {/* Features Section */}
       <section style={{
         padding: '6rem 2rem',
@@ -760,13 +869,13 @@ const Hero = () => {
             Design responsive CSS grid layouts visually with drag-and-drop simplicity
           </p>
 
-          <div style={{
+          <div className="feature-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '2rem'
           }}>
             {/* Feature Card 1 */}
-            <div style={{
+            <div className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(99, 102, 241, 0.3)',
               borderRadius: '1rem',
@@ -800,7 +909,7 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 2 */}
-            <div style={{
+            <div className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(139, 92, 246, 0.3)',
               borderRadius: '1rem',
@@ -834,7 +943,7 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 3 */}
-            <div style={{
+            <div className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(16, 185, 129, 0.3)',
               borderRadius: '1rem',
@@ -874,6 +983,76 @@ const Hero = () => {
         @keyframes blink {
           0%, 50%, 100% { opacity: 1; }
           25%, 75% { opacity: 0; }
+        }
+        
+        .typewriter-text {
+          min-width: 200px;
+        }
+        
+        @media (min-width: 768px) {
+          .typewriter-text {
+            min-width: 400px;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .hero-title {
+            font-size: 2.5rem !important;
+          }
+          
+          .hero-subtitle {
+            font-size: 1rem !important;
+            padding: 0 1rem;
+          }
+          
+          .hero-buttons {
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 1rem !important;
+          }
+          
+          .hero-buttons a,
+          .hero-buttons button {
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+          }
+          
+          .scroll-section {
+            display: none !important;
+          }
+          
+          .mobile-templates {
+            display: flex !important;
+          }
+          
+          .feature-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          
+          .feature-card {
+            padding: 1.5rem !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-title {
+            font-size: 2rem !important;
+          }
+          
+          .typewriter-text {
+            min-width: 150px !important;
+            font-size: 1.8rem !important;
+          }
+          
+          .hero-section {
+            padding: 0 1rem;
+          }
+        }
+        
+        .mobile-templates {
+          display: none;
         }
       `}</style>
     </div>
