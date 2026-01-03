@@ -979,6 +979,235 @@ const Hero = () => {
         </div>
       </section>
 
+      {/* SEO Content Section - What is CSS Grid? */}
+      <section style={{
+        padding: '5rem 2rem',
+        background: '#0f0f0f'
+      }}>
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+            fontWeight: 'bold',
+            marginBottom: '1.5rem',
+            color: 'white',
+            textAlign: 'center'
+          }}>
+            What is CSS Grid?
+          </h2>
+          <div style={{
+            color: '#b0b0b0',
+            fontSize: '1.05rem',
+            lineHeight: '1.8',
+            textAlign: 'left'
+          }}>
+            <p style={{ marginBottom: '1.25rem' }}>
+              <strong style={{ color: '#6366f1' }}>CSS Grid</strong> is a powerful two-dimensional layout system built into modern browsers. Unlike Flexbox which works in one direction, CSS Grid allows you to control both rows and columns simultaneously, making it perfect for complex web layouts like dashboards, galleries, and magazine-style designs.
+            </p>
+            <p style={{ marginBottom: '1.25rem' }}>
+              With CSS Grid, you can create responsive layouts without relying on frameworks like Bootstrap. It provides properties like <code style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', color: '#a5b4fc' }}>grid-template-columns</code>, <code style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', color: '#a5b4fc' }}>grid-template-rows</code>, and <code style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '2px 6px', borderRadius: '4px', color: '#a5b4fc' }}>grid-gap</code> to define your layout structure with precision.
+            </p>
+            <p>
+              Our <strong style={{ color: 'white' }}>CSS Grid Generator</strong> lets you visually design these layouts and instantly export production-ready code — no manual coding required.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SEO Content Section - How to Use */}
+      <section style={{
+        padding: '5rem 2rem',
+        background: '#0a0a0a'
+      }}>
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+            fontWeight: 'bold',
+            marginBottom: '2rem',
+            color: 'white',
+            textAlign: 'center'
+          }}>
+            How to Use This CSS Grid Generator
+          </h2>
+          <div style={{
+            display: 'grid',
+            gap: '1.5rem'
+          }}>
+            {[
+              { step: '1', title: 'Set Grid Dimensions', desc: 'Choose the number of rows and columns for your grid layout. Adjust the gap spacing between items.' },
+              { step: '2', title: 'Add Grid Items', desc: 'Click on any empty cell to add a new grid item. Each item can be positioned anywhere on your grid.' },
+              { step: '3', title: 'Resize & Arrange', desc: 'Drag the corner handle of any item to resize it across multiple rows or columns. Create complex layouts easily.' },
+              { step: '4', title: 'Export Your Code', desc: 'Click "Copy HTML" or "Copy CSS" to get clean, production-ready code. Paste directly into your project.' }
+            ].map((item) => (
+              <div key={item.step} style={{
+                display: 'flex',
+                gap: '1.25rem',
+                alignItems: 'flex-start',
+                padding: '1.5rem',
+                background: 'rgba(255, 255, 255, 0.02)',
+                borderRadius: '1rem',
+                border: '1px solid rgba(99, 102, 241, 0.15)'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  minWidth: '40px',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  fontSize: '1.1rem'
+                }}>
+                  {item.step}
+                </div>
+                <div>
+                  <h3 style={{ color: 'white', fontWeight: '600', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ color: '#9ca3af', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Internal Links Section */}
+      <section style={{
+        padding: '5rem 2rem',
+        background: '#0f0f0f'
+      }}>
+        <div style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          textAlign: 'center'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
+            fontWeight: 'bold',
+            marginBottom: '1rem',
+            color: 'white'
+          }}>
+            Explore Our Grid Tools
+          </h2>
+          <p style={{
+            color: '#9ca3af',
+            fontSize: '1rem',
+            marginBottom: '2.5rem',
+            maxWidth: '600px',
+            margin: '0 auto 2.5rem'
+          }}>
+            Choose from different grid styles and ready-made templates to jumpstart your design
+          </p>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem'
+          }}>
+            <Link to="/grid" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(99, 102, 241, 0.1)',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🎨</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Grid Generator</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Build custom layouts</div>
+            </Link>
+            
+            <Link to="/cyber-grid" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(147, 51, 234, 0.1)',
+              border: '1px solid rgba(147, 51, 234, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⚡</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Cyber Grid</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Neon futuristic style</div>
+            </Link>
+            
+            <Link to="/fluid-mesh" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🌊</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Fluid Mesh</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Organic flowing layouts</div>
+            </Link>
+            
+            <Link to="/classic-grid" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📐</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Classic Grid</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Clean minimal design</div>
+            </Link>
+            
+            <Link to="/presets" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(245, 158, 11, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📦</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Preset Templates</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Ready-made layouts</div>
+            </Link>
+            
+            <Link to="/docs" style={{
+              padding: '1.25rem 1.5rem',
+              background: 'rgba(236, 72, 153, 0.1)',
+              border: '1px solid rgba(236, 72, 153, 0.3)',
+              borderRadius: '0.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+              display: 'block'
+            }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📚</div>
+              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>Documentation</div>
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Learn CSS Grid</div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <style>{`
         @keyframes blink {
           0%, 50%, 100% { opacity: 1; }
