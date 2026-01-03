@@ -63,7 +63,7 @@ Open [http://localhost:5173](http://localhost:5173) to view it in your browser.
 GridLayoutGenrator/
 ├── public/
 │   ├── robots.txt          # SEO robots file
-│   └── sitemap.xml         # SEO sitemap
+│   └── sitemap-index.xml         # SEO sitemap
 ├── src/
 │   ├── components/
 │   │   ├── grid/           # Grid generators
