@@ -9,7 +9,7 @@
 
 **A beautiful, interactive CSS Grid layout generator with drag-and-drop functionality**
 
-[Live Demo](https://grid-layout-generator.vercel.app) · [Report Bug](https://github.com/anupamraj176/GridLayoutGenrator/issues) · [Request Feature](https://github.com/anupamraj176/GridLayoutGenrator/issues)
+[Live Demo](https://grid-layout-genrator.vercel.app/) · [Report Bug](https://github.com/anupamraj176/GridLayoutGenrator/issues) · [Request Feature](https://github.com/anupamraj176/GridLayoutGenrator/issues)
 
 </div>
 
