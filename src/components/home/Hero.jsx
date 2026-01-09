@@ -6,6 +6,27 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// GSAP text animation helper
+const animateText = (element, delay = 0) => {
+  if (!element) return;
+  gsap.fromTo(element, 
+    { y: 60, opacity: 0, rotateX: -15 },
+    { 
+      y: 0, 
+      opacity: 1, 
+      rotateX: 0,
+      duration: 1,
+      delay,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: element,
+        start: "top 85%",
+        toggleActions: "play none none reverse"
+      }
+    }
+  );
+};
+
 const TEMPLATES = [
   {
     id: 1,
@@ -47,6 +68,11 @@ const Hero = () => {
   const scrollTrackRef = useRef(null);
   const cardsRef = useRef([]);
   const meshRef = useRef(null);
+  const featureSectionRef = useRef(null);
+  const featureCardsRef = useRef([]);
+  const seoSection1Ref = useRef(null);
+  const seoSection2Ref = useRef(null);
+  const toolsGridRef = useRef(null);
   const [titleText, setTitleText] = useState("...");
 
   useEffect(() => {
@@ -236,6 +262,133 @@ const Hero = () => {
         invalidateOnRefresh: true,
       },
     });
+
+    // Feature cards stagger animation
+    if (featureCardsRef.current.length > 0) {
+      gsap.fromTo(featureCardsRef.current,
+        { y: 80, opacity: 0, scale: 0.9, rotateY: -10 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          rotateY: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: featureSectionRef.current,
+            start: "top 75%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    }
+
+    // SEO Section 1 animation (What is CSS Grid?)
+    if (seoSection1Ref.current) {
+      const seoTitle1 = seoSection1Ref.current.querySelector('h2');
+      const seoContent1 = seoSection1Ref.current.querySelector('.seo-content');
+      
+      if (seoTitle1) {
+        gsap.fromTo(seoTitle1,
+          { y: 50, opacity: 0, scale: 0.95 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: seoSection1Ref.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+      
+      if (seoContent1) {
+        gsap.fromTo(seoContent1,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            delay: 0.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: seoSection1Ref.current,
+              start: "top 75%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+    }
+
+    // SEO Section 2 animation (How to Use)
+    if (seoSection2Ref.current) {
+      const seoTitle2 = seoSection2Ref.current.querySelector('h2');
+      const stepCards = seoSection2Ref.current.querySelectorAll('.step-card');
+      
+      if (seoTitle2) {
+        gsap.fromTo(seoTitle2,
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: seoSection2Ref.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+      
+      if (stepCards.length > 0) {
+        gsap.fromTo(stepCards,
+          { x: -60, opacity: 0, rotateY: -5 },
+          {
+            x: 0,
+            opacity: 1,
+            rotateY: 0,
+            duration: 0.7,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: seoSection2Ref.current,
+              start: "top 70%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+      }
+    }
+
+    // Tools grid animation
+    if (toolsGridRef.current) {
+      const toolCards = toolsGridRef.current.querySelectorAll('.tool-card');
+      
+      gsap.fromTo(toolCards,
+        { y: 50, opacity: 0, scale: 0.9 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: "back.out(1.2)",
+          scrollTrigger: {
+            trigger: toolsGridRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse"
+          }
+        }
+      );
+    }
   }, { scope: containerRef });
 
   const magnetic = (e) => {
@@ -840,7 +993,7 @@ const Hero = () => {
       </section>
 
       {/* Features Section */}
-      <section style={{
+      <section ref={featureSectionRef} style={{
         padding: '6rem 2rem',
         background: '#0a0a0a'
       }}>
@@ -875,7 +1028,7 @@ const Hero = () => {
             gap: '2rem'
           }}>
             {/* Feature Card 1 */}
-            <div className="feature-card" style={{
+            <div ref={el => featureCardsRef.current[0] = el} className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(99, 102, 241, 0.3)',
               borderRadius: '1rem',
@@ -909,7 +1062,7 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 2 */}
-            <div className="feature-card" style={{
+            <div ref={el => featureCardsRef.current[1] = el} className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(139, 92, 246, 0.3)',
               borderRadius: '1rem',
@@ -943,7 +1096,7 @@ const Hero = () => {
             </div>
 
             {/* Feature Card 3 */}
-            <div className="feature-card" style={{
+            <div ref={el => featureCardsRef.current[2] = el} className="feature-card" style={{
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px dashed rgba(16, 185, 129, 0.3)',
               borderRadius: '1rem',
@@ -980,7 +1133,7 @@ const Hero = () => {
       </section>
 
       {/* SEO Content Section - What is CSS Grid? */}
-      <section style={{
+      <section ref={seoSection1Ref} style={{
         padding: '5rem 2rem',
         background: '#0f0f0f'
       }}>
@@ -997,7 +1150,7 @@ const Hero = () => {
           }}>
             What is CSS Grid?
           </h2>
-          <div style={{
+          <div className="seo-content" style={{
             color: '#b0b0b0',
             fontSize: '1.05rem',
             lineHeight: '1.8',
@@ -1017,7 +1170,7 @@ const Hero = () => {
       </section>
 
       {/* SEO Content Section - How to Use */}
-      <section style={{
+      <section ref={seoSection2Ref} style={{
         padding: '5rem 2rem',
         background: '#0a0a0a'
       }}>
@@ -1044,7 +1197,7 @@ const Hero = () => {
               { step: '3', title: 'Resize & Arrange', desc: 'Drag the corner handle of any item to resize it across multiple rows or columns. Create complex layouts easily.' },
               { step: '4', title: 'Export Your Code', desc: 'Click "Copy HTML" or "Copy CSS" to get clean, production-ready code. Paste directly into your project.' }
             ].map((item) => (
-              <div key={item.step} style={{
+              <div key={item.step} className="step-card" style={{
                 display: 'flex',
                 gap: '1.25rem',
                 alignItems: 'flex-start',
@@ -1110,12 +1263,12 @@ const Hero = () => {
             Choose from different grid styles and ready-made templates to jumpstart your design
           </p>
           
-          <div style={{
+          <div ref={toolsGridRef} style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '1rem'
           }}>
-            <Link to="/grid" style={{
+            <Link to="/grid" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(99, 102, 241, 0.1)',
               border: '1px solid rgba(99, 102, 241, 0.3)',
@@ -1130,7 +1283,7 @@ const Hero = () => {
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Build custom layouts</div>
             </Link>
             
-            <Link to="/cyber-grid" style={{
+            <Link to="/cyber-grid" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(147, 51, 234, 0.1)',
               border: '1px solid rgba(147, 51, 234, 0.3)',
@@ -1145,7 +1298,7 @@ const Hero = () => {
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Neon futuristic style</div>
             </Link>
             
-            <Link to="/fluid-mesh" style={{
+            <Link to="/fluid-mesh" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(59, 130, 246, 0.1)',
               border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -1160,7 +1313,7 @@ const Hero = () => {
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Organic flowing layouts</div>
             </Link>
             
-            <Link to="/classic-grid" style={{
+            <Link to="/classic-grid" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(16, 185, 129, 0.1)',
               border: '1px solid rgba(16, 185, 129, 0.3)',
@@ -1175,7 +1328,7 @@ const Hero = () => {
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Clean minimal design</div>
             </Link>
             
-            <Link to="/presets" style={{
+            <Link to="/presets" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(245, 158, 11, 0.1)',
               border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -1190,7 +1343,7 @@ const Hero = () => {
               <div style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Ready-made layouts</div>
             </Link>
             
-            <Link to="/docs" style={{
+            <Link to="/docs" className="tool-card" style={{
               padding: '1.25rem 1.5rem',
               background: 'rgba(236, 72, 153, 0.1)',
               border: '1px solid rgba(236, 72, 153, 0.3)',
