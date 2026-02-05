@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { gsap } from 'gsap';
 import Toast from '../ui/Toast';
 
 const GridGenerator = () => {
@@ -12,18 +13,26 @@ const GridGenerator = () => {
   const [showToast, setShowToast] = useState(false);
   const [resizing, setResizing] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
   const gridRef = useRef(null);
   const glowRef = useRef(null);
+  const containerRef = useRef(null);
+  const titleRef = useRef(null);
+  const controlsRef = useRef(null);
+  const codeOutputRef = useRef(null);
   const animationFrameRef = useRef(null);
 
   const THEME = {
     accent: "#6366f1",
     accentGlow: "rgba(99, 102, 241, 0.4)",
+    accentLight: "rgba(99, 102, 241, 0.15)",
     bg: "#0a0a0a",
-    cellBg: "rgba(99, 102, 241, 0.15)",
+    cellBg: "rgba(99, 102, 241, 0.12)",
     cellHover: "rgba(99, 102, 241, 0.25)",
-    itemBg: "linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%)",
-    itemBorder: "rgba(99, 102, 241, 0.5)"
+    itemBg: "linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(139, 92, 246, 0.35) 100%)",
+    itemBorder: "rgba(99, 102, 241, 0.6)",
+    cardBg: "rgba(15, 15, 15, 0.8)",
+    glassBorder: "rgba(99, 102, 241, 0.2)"
   };
 
   const occupied = useMemo(() => {
@@ -107,9 +116,37 @@ const GridGenerator = () => {
   }, [resizing, items, rows, cols, getCellFromPosition]);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsSmallMobile(window.innerWidth < 480);
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // GSAP entrance animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(titleRef.current,
+        { y: -30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.1 }
+      );
+      gsap.fromTo(controlsRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out", delay: 0.3 }
+      );
+      gsap.fromTo(gridRef.current,
+        { scale: 0.95, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.7, ease: "back.out(1.2)", delay: 0.4 }
+      );
+      if (codeOutputRef.current) {
+        gsap.fromTo(codeOutputRef.current.children,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.15, ease: "power2.out", delay: 0.6 }
+        );
+      }
+    }, containerRef);
+    return () => ctx.revert();
   }, []);
 
   useEffect(() => {
@@ -152,34 +189,62 @@ const GridGenerator = () => {
   }, []);
 
   return (
-    <div style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: '100px' }}>
+    <div ref={containerRef} style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: isMobile ? '85px' : '100px' }}>
       <div ref={glowRef} style={{
-        position: 'fixed', top: 0, left: 0, width: '400px', height: '400px',
+        position: 'fixed', top: 0, left: 0, width: isMobile ? '300px' : '400px', height: isMobile ? '300px' : '400px',
         transform: 'translate(-50%, -50%)',
         background: `radial-gradient(circle, ${THEME.accentGlow} 0%, transparent 70%)`,
         borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0
       }} />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
-        <h1 style={{
-          textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem',
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '1rem' : '2rem', position: 'relative', zIndex: 1 }}>
+        <h1 ref={titleRef} style={{
+          textAlign: 'center', 
+          fontSize: isSmallMobile ? '1.75rem' : isMobile ? '2rem' : '2.5rem', 
+          fontWeight: 'bold', 
+          marginBottom: isMobile ? '1.5rem' : '2rem',
           background: `linear-gradient(135deg, ${THEME.accent} 0%, #8b5cf6 100%)`,
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          letterSpacing: '-0.02em'
         }}>
           CSS Grid Generator
         </h1>
 
         {/* Controls */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+        <div ref={controlsRef} style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: isSmallMobile ? '0.5rem' : '0.75rem', 
+          marginBottom: isMobile ? '1.5rem' : '2rem', 
+          flexWrap: 'wrap', 
+          padding: '0 0.5rem' 
+        }}>
           {[['Cols', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
             <div key={label} style={{
-              background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`,
-              padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'
+              background: THEME.cardBg,
+              backdropFilter: 'blur(10px)',
+              border: `1px solid ${THEME.glassBorder}`,
+              padding: isSmallMobile ? '0.4rem 0.75rem' : isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem', 
+              borderRadius: '0.75rem', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              boxShadow: `0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 ${THEME.glassBorder}`,
+              transition: 'all 0.3s ease'
             }}>
-              <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{label}</span>
+              <span style={{ color: '#9ca3af', fontSize: isSmallMobile ? '0.75rem' : '0.875rem', fontWeight: '500' }}>{label}</span>
               <input type="number" value={value}
                 onChange={(e) => setter(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))}
-                style={{ width: '50px', background: 'transparent', border: 'none', color: THEME.accent, fontSize: '1rem', textAlign: 'center', outline: 'none', fontWeight: '600' }}
+                style={{ 
+                  width: isSmallMobile ? '40px' : '50px', 
+                  background: 'transparent', 
+                  border: 'none', 
+                  color: THEME.accent, 
+                  fontSize: isSmallMobile ? '0.875rem' : '1rem', 
+                  textAlign: 'center', 
+                  outline: 'none', 
+                  fontWeight: '700' 
+                }}
               />
             </div>
           ))}
@@ -187,10 +252,20 @@ const GridGenerator = () => {
 
         {/* Grid */}
         <div ref={gridRef} style={{
-          display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`,
-          gap: `${gap}px`, aspectRatio: '1', maxWidth: '700px', margin: '0 auto',
-          background: 'rgba(99, 102, 241, 0.05)', border: `1px solid ${THEME.itemBorder}`,
-          borderRadius: '1rem', padding: '1rem', userSelect: resizing ? 'none' : 'auto'
+          display: 'grid', 
+          gridTemplateColumns: `repeat(${cols}, 1fr)`, 
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
+          gap: `${isSmallMobile ? Math.min(gap, 4) : gap}px`, 
+          aspectRatio: isMobile ? 'auto' : '1',
+          height: isMobile ? `${Math.min(rows * 50, 350)}px` : 'auto',
+          maxWidth: isMobile ? '100%' : '700px', 
+          margin: '0 auto',
+          background: `linear-gradient(135deg, ${THEME.accentLight} 0%, rgba(139, 92, 246, 0.08) 100%)`,
+          border: `1px solid ${THEME.itemBorder}`,
+          borderRadius: isMobile ? '0.75rem' : '1rem', 
+          padding: isSmallMobile ? '0.5rem' : isMobile ? '0.75rem' : '1rem', 
+          userSelect: resizing ? 'none' : 'auto',
+          boxShadow: `0 8px 32px rgba(99, 102, 241, 0.15), inset 0 0 60px rgba(99, 102, 241, 0.05)`
         }}>
           {Array.from({ length: rows * cols }).map((_, index) => {
             const row = Math.floor(index / cols) + 1;
@@ -199,13 +274,34 @@ const GridGenerator = () => {
             return (
               <div key={`cell-${index}`} onClick={() => !isOccupied && handleCellClick(row, col)}
                 style={{
-                  gridRow: row, gridColumn: col, background: isOccupied ? 'transparent' : THEME.cellBg,
-                  borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: isOccupied ? 'default' : 'pointer', transition: 'all 0.2s ease',
-                  color: 'rgba(99, 102, 241, 0.5)', fontSize: '1.5rem', fontWeight: '300'
+                  gridRow: row, gridColumn: col, 
+                  background: isOccupied ? 'transparent' : THEME.cellBg,
+                  borderRadius: isSmallMobile ? '0.35rem' : '0.5rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  cursor: isOccupied ? 'default' : 'pointer', 
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  color: 'rgba(99, 102, 241, 0.5)', 
+                  fontSize: isSmallMobile ? '1rem' : '1.5rem', 
+                  fontWeight: '300',
+                  minHeight: isSmallMobile ? '30px' : isMobile ? '40px' : 'auto',
+                  border: isOccupied ? 'none' : '1px dashed rgba(99, 102, 241, 0.2)'
                 }}
-                onMouseEnter={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellHover; }}
-                onMouseLeave={(e) => { if (!isOccupied) e.currentTarget.style.background = THEME.cellBg; }}
+                onMouseEnter={(e) => { 
+                  if (!isOccupied) {
+                    e.currentTarget.style.background = THEME.cellHover;
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+                  }
+                }}
+                onMouseLeave={(e) => { 
+                  if (!isOccupied) {
+                    e.currentTarget.style.background = THEME.cellBg;
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.2)';
+                  }
+                }}
               >
                 {!isOccupied && '+'}
               </div>
@@ -214,54 +310,171 @@ const GridGenerator = () => {
 
           {items.map((item, index) => (
             <div key={item.id} style={{
-              gridColumn: `${item.colStart} / span ${item.colSpan}`, gridRow: `${item.rowStart} / span ${item.rowSpan}`,
-              background: THEME.itemBg, borderRadius: '0.5rem', border: `2px solid ${THEME.itemBorder}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.25rem', fontWeight: '600', color: 'white', position: 'relative',
-              boxShadow: `0 0 20px ${THEME.accentGlow}`, zIndex: 10
+              gridColumn: `${item.colStart} / span ${item.colSpan}`, 
+              gridRow: `${item.rowStart} / span ${item.rowSpan}`,
+              background: THEME.itemBg, 
+              borderRadius: isSmallMobile ? '0.35rem' : '0.5rem', 
+              border: `2px solid ${THEME.itemBorder}`,
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              fontSize: isSmallMobile ? '0.875rem' : '1.25rem', 
+              fontWeight: '700', 
+              color: 'white', 
+              position: 'relative',
+              boxShadow: `0 0 20px ${THEME.accentGlow}, inset 0 1px 0 rgba(255,255,255,0.1)`, 
+              zIndex: 10,
+              minHeight: isSmallMobile ? '30px' : isMobile ? '40px' : 'auto',
+              transition: 'all 0.2s ease'
             }}>
               {index + 1}
               <button onClick={(e) => handleDelete(item.id, e)} style={{
-                position: 'absolute', top: '4px', right: '4px', width: '20px', height: '20px',
-                background: THEME.accent, border: 'none', borderRadius: '4px', color: 'white',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '12px', fontWeight: 'bold', transition: 'all 0.2s ease', zIndex: 20
+                position: 'absolute', 
+                top: isSmallMobile ? '2px' : '4px', 
+                right: isSmallMobile ? '2px' : '4px', 
+                width: isSmallMobile ? '16px' : '20px', 
+                height: isSmallMobile ? '16px' : '20px',
+                background: `linear-gradient(135deg, ${THEME.accent} 0%, #8b5cf6 100%)`, 
+                border: 'none', 
+                borderRadius: '4px', 
+                color: 'white',
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                fontSize: isSmallMobile ? '10px' : '12px', 
+                fontWeight: 'bold', 
+                transition: 'all 0.2s ease', 
+                zIndex: 20,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}>×</button>
               <div onMouseDown={(e) => handleResizeStart(item.id, e)} style={{
-                position: 'absolute', bottom: '4px', right: '4px', width: '16px', height: '16px',
-                cursor: 'nwse-resize', color: 'rgba(255,255,255,0.6)', zIndex: 20
+                position: 'absolute', 
+                bottom: isSmallMobile ? '2px' : '4px', 
+                right: isSmallMobile ? '2px' : '4px', 
+                width: isSmallMobile ? '12px' : '16px', 
+                height: isSmallMobile ? '12px' : '16px',
+                cursor: 'nwse-resize', 
+                color: 'rgba(255,255,255,0.7)', 
+                zIndex: 20
               }}>
-                <svg width="10" height="10" viewBox="0 0 10 10"><path d="M9 1L1 9M9 5L5 9M9 9L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                <svg width={isSmallMobile ? "8" : "10"} height={isSmallMobile ? "8" : "10"} viewBox="0 0 10 10"><path d="M9 1L1 9M9 5L5 9M9 9L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               </div>
             </div>
           ))}
         </div>
 
         {/* Reset */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', maxWidth: '700px', margin: '1rem auto 0' }}>
-          <button onClick={() => { setItems([]); setNextId(1); }} style={{
-            padding: '0.5rem 1.5rem', background: 'rgba(99, 102, 241, 0.1)', border: `1px solid ${THEME.itemBorder}`,
-            borderRadius: '0.375rem', color: THEME.accent, cursor: 'pointer', fontSize: '0.875rem', fontWeight: '500'
-          }}>Reset</button>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          maxWidth: isMobile ? '100%' : '700px', 
+          margin: '1rem auto 0',
+          padding: isMobile ? '0 0.5rem' : 0 
+        }}>
+          <button 
+            onClick={() => { setItems([]); setNextId(1); }} 
+            style={{
+              padding: isSmallMobile ? '0.4rem 1rem' : '0.5rem 1.5rem', 
+              background: THEME.cardBg,
+              backdropFilter: 'blur(10px)',
+              border: `1px solid ${THEME.glassBorder}`,
+              borderRadius: '0.5rem', 
+              color: THEME.accent, 
+              cursor: 'pointer', 
+              fontSize: isSmallMobile ? '0.8rem' : '0.875rem', 
+              fontWeight: '600',
+              transition: 'all 0.3s ease',
+              boxShadow: `0 4px 15px rgba(0,0,0,0.2)`
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+              e.currentTarget.style.borderColor = THEME.accent;
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = THEME.cardBg;
+              e.currentTarget.style.borderColor = THEME.glassBorder;
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >Reset</button>
         </div>
 
         {/* Code Output */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1.5rem' : '2rem', maxWidth: '1000px', margin: '3rem auto 0', padding: isMobile ? '0 1rem' : 0 }}>
+        <div ref={codeOutputRef} style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+          gap: isMobile ? '1rem' : '2rem', 
+          maxWidth: '1000px', 
+          margin: isMobile ? '2rem auto 0' : '3rem auto 0', 
+          padding: isMobile ? '0 0.5rem' : 0 
+        }}>
           {[['HTML', html, 'html'], ['CSS', css, 'css']].map(([label, code, type]) => (
             <div key={type} style={{
-              background: 'rgba(0, 0, 0, 0.5)', border: `1px solid ${THEME.itemBorder}`,
-              borderRadius: '0.75rem', padding: isMobile ? '1rem' : '1.5rem', backdropFilter: 'blur(10px)'
+              background: THEME.cardBg,
+              backdropFilter: 'blur(15px)',
+              border: `1px solid ${THEME.glassBorder}`,
+              borderRadius: '1rem', 
+              padding: isSmallMobile ? '0.875rem' : isMobile ? '1rem' : '1.5rem',
+              boxShadow: `0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)`,
+              position: 'relative',
+              overflow: 'hidden'
             }}>
+              {/* Gradient accent line */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: `linear-gradient(90deg, ${THEME.accent}, #8b5cf6, ${THEME.accent})`,
+                opacity: 0.6
+              }} />
+              
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-                <button onClick={() => copyToClipboard(code, type)} style={{
-                  padding: '0.5rem 1.5rem', background: THEME.accent, border: 'none',
-                  borderRadius: '0.375rem', color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600'
-                }}>{showCopied === type ? '✓ Copied!' : `Copy ${label}`}</button>
+                <button 
+                  onClick={() => copyToClipboard(code, type)} 
+                  style={{
+                    padding: isSmallMobile ? '0.5rem 1.25rem' : '0.6rem 1.75rem', 
+                    background: showCopied === type 
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+                      : `linear-gradient(135deg, ${THEME.accent} 0%, #8b5cf6 100%)`,
+                    border: 'none',
+                    borderRadius: '0.5rem', 
+                    color: 'white', 
+                    cursor: 'pointer', 
+                    fontSize: isSmallMobile ? '0.8rem' : '0.875rem', 
+                    fontWeight: '700',
+                    boxShadow: `0 4px 15px ${showCopied === type ? 'rgba(16, 185, 129, 0.4)' : 'rgba(99, 102, 241, 0.4)'}`,
+                    transition: 'all 0.3s ease',
+                    transform: showCopied === type ? 'scale(1.02)' : 'scale(1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (showCopied !== type) {
+                      e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = `0 8px 25px rgba(99, 102, 241, 0.5)`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (showCopied !== type) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = `0 4px 15px rgba(99, 102, 241, 0.4)`;
+                    }
+                  }}
+                >{showCopied === type ? '✓ Copied!' : `Copy ${label}`}</button>
               </div>
               <pre style={{
-                fontSize: '0.8125rem', fontFamily: "'Fira Code', monospace", overflow: 'auto',
-                maxHeight: '200px', color: '#d1d5db', lineHeight: '1.6', background: 'rgba(0,0,0,0.3)',
-                padding: '1rem', borderRadius: '0.5rem', margin: 0
+                fontSize: isSmallMobile ? '0.7rem' : '0.8125rem', 
+                fontFamily: "'Fira Code', 'Monaco', 'Consolas', monospace", 
+                overflow: 'auto',
+                maxHeight: isMobile ? '160px' : '200px', 
+                color: '#e2e8f0', 
+                lineHeight: '1.7', 
+                background: 'rgba(0,0,0,0.4)',
+                padding: isSmallMobile ? '0.75rem' : '1rem', 
+                borderRadius: '0.5rem', 
+                margin: 0,
+                border: '1px solid rgba(99, 102, 241, 0.1)'
               }}>{code}</pre>
             </div>
           ))}

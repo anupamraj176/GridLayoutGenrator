@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { gsap } from 'gsap';
 
 const PRESETS = [
   {
@@ -109,8 +110,38 @@ const PRESETS = [
 
 const Presets = () => {
   const [hoveredPreset, setHoveredPreset] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
   const glowRef = useRef(null);
+  const containerRef = useRef(null);
+  const titleRef = useRef(null);
+  const cardsRef = useRef([]);
   const animationFrameRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsSmallMobile(window.innerWidth < 480);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // GSAP entrance animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(titleRef.current,
+        { y: -30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.1 }
+      );
+      gsap.fromTo(cardsRef.current,
+        { y: 40, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: "back.out(1.2)", delay: 0.3 }
+      );
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
@@ -145,62 +176,86 @@ const Presets = () => {
   const copyToClipboard = (preset) => {
     const css = generateCSS(preset);
     navigator.clipboard.writeText(css);
+    setCopiedId(preset.id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh', color: 'white', paddingTop: '100px' }}>
+    <div ref={containerRef} style={{ background: '#0a0a0a', minHeight: '100vh', color: 'white', paddingTop: isMobile ? '85px' : '100px' }}>
       <div ref={glowRef} style={{
-        position: 'fixed', top: 0, left: 0, width: '400px', height: '400px',
+        position: 'fixed', top: 0, left: 0, width: isMobile ? '300px' : '400px', height: isMobile ? '300px' : '400px',
         transform: 'translate(-50%, -50%)',
         background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
         borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0
       }} />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '1rem' : '2rem', position: 'relative', zIndex: 1 }}>
+        <div ref={titleRef} style={{ textAlign: 'center', marginBottom: isMobile ? '2rem' : '3rem' }}>
           <h1 style={{
-            fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem',
+            fontSize: isSmallMobile ? '1.75rem' : isMobile ? '2rem' : '2.5rem', 
+            fontWeight: 'bold', 
+            marginBottom: '1rem',
             background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.02em'
           }}>
             Grid Presets
           </h1>
-          <p style={{ color: '#9ca3af', fontSize: '1.1rem' }}>
+          <p style={{ color: '#9ca3af', fontSize: isMobile ? '0.95rem' : '1.1rem', maxWidth: '500px', margin: '0 auto' }}>
             Start with a pre-made layout and customize it to your needs
           </p>
         </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '1.5rem'
+          gridTemplateColumns: isSmallMobile ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: isMobile ? '1rem' : '1.5rem'
         }}>
-          {PRESETS.map((preset) => (
+          {PRESETS.map((preset, index) => (
             <div
               key={preset.id}
+              ref={(el) => (cardsRef.current[index] = el)}
               onMouseEnter={() => setHoveredPreset(preset.id)}
               onMouseLeave={() => setHoveredPreset(null)}
               style={{
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: `1px solid ${hoveredPreset === preset.id ? preset.color : 'rgba(255, 255, 255, 0.1)'}`,
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                transition: 'all 0.3s ease',
-                transform: hoveredPreset === preset.id ? 'translateY(-4px)' : 'none',
-                boxShadow: hoveredPreset === preset.id ? `0 20px 40px ${preset.color}20` : 'none'
+                background: 'rgba(15, 15, 15, 0.8)',
+                backdropFilter: 'blur(15px)',
+                border: `1px solid ${hoveredPreset === preset.id ? preset.color : 'rgba(255, 255, 255, 0.08)'}`,
+                borderRadius: isMobile ? '0.875rem' : '1rem',
+                padding: isMobile ? '1rem' : '1.5rem',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: hoveredPreset === preset.id ? 'translateY(-6px) scale(1.01)' : 'none',
+                boxShadow: hoveredPreset === preset.id 
+                  ? `0 20px 50px ${preset.color}25, 0 0 0 1px ${preset.color}30` 
+                  : '0 4px 20px rgba(0,0,0,0.2)',
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
+              {/* Gradient accent line at top */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: `linear-gradient(90deg, transparent, ${preset.color}, transparent)`,
+                opacity: hoveredPreset === preset.id ? 0.8 : 0.3,
+                transition: 'opacity 0.3s ease'
+              }} />
               {/* Mini Grid Preview */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(${preset.cols}, 1fr)`,
                 gridTemplateRows: `repeat(${preset.rows}, 1fr)`,
-                gap: '4px',
+                gap: isSmallMobile ? '2px' : '4px',
                 aspectRatio: '4/3',
-                marginBottom: '1rem',
-                padding: '0.75rem',
-                background: 'rgba(0, 0, 0, 0.3)',
-                borderRadius: '0.5rem'
+                marginBottom: isMobile ? '0.75rem' : '1rem',
+                padding: isSmallMobile ? '0.5rem' : '0.75rem',
+                background: 'rgba(0, 0, 0, 0.4)',
+                borderRadius: '0.5rem',
+                border: '1px solid rgba(255,255,255,0.05)'
               }}>
                 {preset.items.map((item, index) => (
                   <div
@@ -208,15 +263,17 @@ const Presets = () => {
                     style={{
                       gridColumn: `${item.colStart} / span ${item.colSpan}`,
                       gridRow: `${item.rowStart} / span ${item.rowSpan}`,
-                      background: `linear-gradient(135deg, ${preset.color}40 0%, ${preset.color}20 100%)`,
-                      border: `1px solid ${preset.color}60`,
-                      borderRadius: '4px',
+                      background: `linear-gradient(135deg, ${preset.color}45 0%, ${preset.color}25 100%)`,
+                      border: `1px solid ${preset.color}70`,
+                      borderRadius: isSmallMobile ? '3px' : '4px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '0.65rem',
+                      fontSize: isSmallMobile ? '0.55rem' : '0.65rem',
                       color: preset.color,
-                      fontWeight: '600'
+                      fontWeight: '700',
+                      boxShadow: `inset 0 1px 0 ${preset.color}20`,
+                      transition: 'all 0.2s ease'
                     }}
                   >
                     {index + 1}
@@ -224,47 +281,83 @@ const Presets = () => {
                 ))}
               </div>
 
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.25rem', color: preset.color }}>
+              <h3 style={{ 
+                fontSize: isMobile ? '1rem' : '1.1rem', 
+                fontWeight: '700', 
+                marginBottom: '0.25rem', 
+                color: preset.color,
+                letterSpacing: '-0.01em'
+              }}>
                 {preset.name}
               </h3>
-              <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginBottom: '1rem' }}>
+              <p style={{ 
+                fontSize: isMobile ? '0.8rem' : '0.85rem', 
+                color: '#9ca3af', 
+                marginBottom: isMobile ? '0.75rem' : '1rem',
+                lineHeight: '1.5'
+              }}>
                 {preset.description}
               </p>
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: isSmallMobile ? '0.5rem' : '0.75rem' }}>
                 <button
                   onClick={() => copyToClipboard(preset)}
                   style={{
                     flex: 1,
-                    padding: '0.5rem 1rem',
-                    background: `${preset.color}20`,
-                    border: `1px solid ${preset.color}50`,
+                    padding: isSmallMobile ? '0.4rem 0.75rem' : '0.5rem 1rem',
+                    background: copiedId === preset.id ? 'rgba(16, 185, 129, 0.2)' : `${preset.color}20`,
+                    border: `1px solid ${copiedId === preset.id ? '#10b981' : preset.color}60`,
                     borderRadius: '0.5rem',
-                    color: preset.color,
+                    color: copiedId === preset.id ? '#10b981' : preset.color,
                     cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    transition: 'all 0.2s ease'
+                    fontSize: isSmallMobile ? '0.7rem' : '0.8rem',
+                    fontWeight: '700',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: copiedId === preset.id ? 'scale(1.02)' : 'scale(1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (copiedId !== preset.id) {
+                      e.currentTarget.style.background = `${preset.color}35`;
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (copiedId !== preset.id) {
+                      e.currentTarget.style.background = `${preset.color}20`;
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }
                   }}
                 >
-                  Copy CSS
+                  {copiedId === preset.id ? '✓ Copied!' : 'Copy CSS'}
                 </button>
                 <Link
                   to="/grid"
                   state={{ preset }}
                   style={{
                     flex: 1,
-                    padding: '0.5rem 1rem',
-                    background: preset.color,
+                    padding: isSmallMobile ? '0.4rem 0.75rem' : '0.5rem 1rem',
+                    background: `linear-gradient(135deg, ${preset.color} 0%, ${preset.color}cc 100%)`,
                     border: 'none',
                     borderRadius: '0.5rem',
                     color: 'white',
                     cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
+                    fontSize: isSmallMobile ? '0.7rem' : '0.8rem',
+                    fontWeight: '700',
                     textAlign: 'center',
                     textDecoration: 'none',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: `0 4px 15px ${preset.color}40`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = `0 8px 25px ${preset.color}50`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = `0 4px 15px ${preset.color}40`;
                   }}
                 >
                   Use Template

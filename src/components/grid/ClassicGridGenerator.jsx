@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { gsap } from 'gsap';
 import Toast from '../ui/Toast';
 
 const ClassicGridGenerator = () => {
@@ -12,18 +13,26 @@ const ClassicGridGenerator = () => {
   const [showToast, setShowToast] = useState(false);
   const [resizing, setResizing] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
   const gridRef = useRef(null);
   const glowRef = useRef(null);
+  const containerRef = useRef(null);
+  const titleRef = useRef(null);
+  const controlsRef = useRef(null);
+  const codeOutputRef = useRef(null);
   const animationFrameRef = useRef(null);
 
   const THEME = {
     accent: "#10b981",
     accentGlow: "rgba(16, 185, 129, 0.4)",
+    accentLight: "rgba(16, 185, 129, 0.15)",
     bg: "#0a0a0a",
-    cellBg: "rgba(16, 185, 129, 0.15)",
+    cellBg: "rgba(16, 185, 129, 0.12)",
     cellHover: "rgba(16, 185, 129, 0.25)",
-    itemBg: "linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(34, 197, 94, 0.3) 100%)",
-    itemBorder: "rgba(16, 185, 129, 0.5)"
+    itemBg: "linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(34, 197, 94, 0.35) 100%)",
+    itemBorder: "rgba(16, 185, 129, 0.6)",
+    cardBg: "rgba(15, 15, 15, 0.8)",
+    glassBorder: "rgba(16, 185, 129, 0.2)"
   };
 
   const occupied = useMemo(() => {
@@ -107,9 +116,37 @@ const ClassicGridGenerator = () => {
   }, [resizing, items, rows, cols, getCellFromPosition]);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsSmallMobile(window.innerWidth < 480);
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // GSAP entrance animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(titleRef.current,
+        { y: -30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.1 }
+      );
+      gsap.fromTo(controlsRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out", delay: 0.3 }
+      );
+      gsap.fromTo(gridRef.current,
+        { scale: 0.95, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.7, ease: "back.out(1.2)", delay: 0.4 }
+      );
+      if (codeOutputRef.current) {
+        gsap.fromTo(codeOutputRef.current.children,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.15, ease: "power2.out", delay: 0.6 }
+        );
+      }
+    }, containerRef);
+    return () => ctx.revert();
   }, []);
 
   useEffect(() => {
@@ -152,17 +189,17 @@ const ClassicGridGenerator = () => {
   }, []);
 
   return (
-    <div style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: '100px' }}>
+    <div ref={containerRef} style={{ background: THEME.bg, minHeight: '100vh', color: 'white', paddingTop: isMobile ? '85px' : '100px' }}>
       <div ref={glowRef} style={{
-        position: 'fixed', top: 0, left: 0, width: '400px', height: '400px',
+        position: 'fixed', top: 0, left: 0, width: isMobile ? '300px' : '400px', height: isMobile ? '300px' : '400px',
         transform: 'translate(-50%, -50%)',
         background: `radial-gradient(circle, ${THEME.accentGlow} 0%, transparent 70%)`,
         borderRadius: '50%', filter: 'blur(80px)', pointerEvents: 'none', zIndex: 0
       }} />
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem', position: 'relative', zIndex: 1 }}>
-        <h1 style={{
-          textAlign: 'center', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem',
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '1rem' : '2rem', position: 'relative', zIndex: 1 }}>
+        <h1 ref={titleRef} style={{
+          textAlign: 'center', fontSize: isSmallMobile ? '1.75rem' : isMobile ? '2rem' : '2.5rem', fontWeight: 'bold', marginBottom: '2rem',
           background: `linear-gradient(135deg, ${THEME.accent} 0%, #22c55e 100%)`,
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
         }}>
@@ -170,7 +207,7 @@ const ClassicGridGenerator = () => {
         </h1>
 
         {/* Controls */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
+        <div ref={controlsRef} style={{ display: 'flex', justifyContent: 'center', gap: isSmallMobile ? '0.5rem' : '0.75rem', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
           {[['Cols', cols, setCols], ['Rows', rows, setRows], ['Gap', gap, setGap]].map(([label, value, setter]) => (
             <div key={label} style={{
               background: 'rgba(16, 185, 129, 0.1)', border: `1px solid ${THEME.itemBorder}`,
@@ -188,9 +225,9 @@ const ClassicGridGenerator = () => {
         {/* Grid */}
         <div ref={gridRef} style={{
           display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)`,
-          gap: `${gap}px`, aspectRatio: '1', maxWidth: '700px', margin: '0 auto',
+          gap: `${gap}px`, aspectRatio: isMobile ? 'auto' : '1', height: isMobile ? `${Math.min(rows * 50, 350)}px` : 'auto', maxWidth: '700px', margin: '0 auto',
           background: 'rgba(16, 185, 129, 0.05)', border: `1px solid ${THEME.itemBorder}`,
-          borderRadius: '1rem', padding: '1rem', userSelect: resizing ? 'none' : 'auto'
+          borderRadius: '1rem', padding: isSmallMobile ? '0.5rem' : isMobile ? '0.75rem' : '1rem', userSelect: resizing ? 'none' : 'auto'
         }}>
           {Array.from({ length: rows * cols }).map((_, index) => {
             const row = Math.floor(index / cols) + 1;
