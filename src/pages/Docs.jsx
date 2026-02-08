@@ -40,6 +40,11 @@ const FEATURES = [
     title: 'Responsive Preview',
     description: 'Preview how your grid will look on different screen sizes'
   },
+  {
+    icon: '💨',
+    title: 'Tailwind CSS Output',
+    description: 'Switch between standard CSS and Tailwind CSS classes for your preferred workflow'
+  },
 ];
 
 const TIPS = [
@@ -50,6 +55,7 @@ const TIPS = [
   "Try different themes for varied visual styles",
   "Copy code directly to use in your projects",
   "Use presets as starting points for common layouts",
+  "Toggle to Tailwind mode for utility-class based output",
 ];
 
 const Docs = () => {
@@ -296,6 +302,37 @@ const Docs = () => {
                 <li style={{ marginBottom: '0.5rem' }}>Test your generated code in a browser before deployment</li>
                 <li>Consider responsive breakpoints for mobile devices</li>
               </ul>
+            </div>
+
+            <div style={{ marginTop: '2rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: '#06b6d4' }}>
+                Tailwind CSS Output
+              </h3>
+              <p style={{ color: '#d1d5db', lineHeight: '1.6', marginBottom: '1rem' }}>
+                Toggle between CSS and Tailwind output modes using the toggle button below the grid. 
+                The Tailwind output generates markup with utility classes that work seamlessly with 
+                TailwindCSS projects.
+              </p>
+              <div style={{ 
+                background: 'rgba(6, 182, 212, 0.1)', 
+                border: '1px solid rgba(6, 182, 212, 0.3)', 
+                borderRadius: '0.5rem', 
+                padding: '1rem',
+                fontFamily: "'Fira Code', monospace",
+                fontSize: '0.85rem',
+                color: '#d1d5db'
+              }}>
+                <div style={{ marginBottom: '0.5rem', color: '#06b6d4' }}>/* Example Tailwind Output */</div>
+                <code>{`<div class="grid grid-cols-3 grid-rows-2 gap-2">`}</code><br />
+                <code>{`  <div class="col-span-2">1</div>`}</code><br />
+                <code>{`  <div class="row-span-2">2</div>`}</code><br />
+                <code>{`</div>`}</code>
+              </div>
+              <p style={{ color: '#9ca3af', lineHeight: '1.6', marginTop: '1rem', fontSize: '0.9rem' }}>
+                <strong style={{ color: '#06b6d4' }}>Note:</strong> For grids exceeding 12 columns/rows, 
+                you'll need to extend your Tailwind configuration. The generated code includes helpful 
+                comments with the required configuration.
+              </p>
             </div>
           </div>
         )}

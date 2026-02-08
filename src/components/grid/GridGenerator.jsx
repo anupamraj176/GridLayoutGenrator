@@ -14,6 +14,7 @@ const GridGenerator = () => {
   const [resizing, setResizing] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
+  const [outputMode, setOutputMode] = useState('css'); // 'css' or 'tailwind'
   const gridRef = useRef(null);
   const glowRef = useRef(null);
   const containerRef = useRef(null);
@@ -172,13 +173,70 @@ const GridGenerator = () => {
   }, []);
 
   const { html, css } = useMemo(() => {
+    // Helper to convert pixel gap to Tailwind class
+    const getGapClass = (gapPx) => {
+      const gapMap = {
+        0: '0', 1: 'px', 2: '0.5', 4: '1', 6: '1.5', 8: '2', 10: '2.5',
+        12: '3', 14: '3.5', 16: '4', 20: '5', 24: '6', 28: '7', 32: '8',
+        36: '9', 40: '10', 44: '11', 48: '12'
+      };
+      // Find closest value
+      const sorted = Object.keys(gapMap).map(Number).sort((a, b) => Math.abs(a - gapPx) - Math.abs(b - gapPx));
+      return gapMap[sorted[0]] || '2';
+    };
+
+    if (outputMode === 'tailwind') {
+      // Generate Tailwind HTML
+      const gapClass = getGapClass(gap);
+      const parentClasses = `grid grid-cols-${Math.min(cols, 12)} grid-rows-${Math.min(rows, 12)} gap-${gapClass}`;
+      
+      let tailwindHtml = `<div class="${parentClasses}">\n`;
+      items.forEach((item, i) => {
+        const itemClasses = [];
+        if (item.colStart > 1) itemClasses.push(`col-start-${Math.min(item.colStart, 13)}`);
+        if (item.colSpan > 1) itemClasses.push(`col-span-${Math.min(item.colSpan, 12)}`);
+        if (item.rowStart > 1) itemClasses.push(`row-start-${Math.min(item.rowStart, 13)}`);
+        if (item.rowSpan > 1) itemClasses.push(`row-span-${Math.min(item.rowSpan, 12)}`);
+        
+        const classStr = itemClasses.length > 0 ? ` class="${itemClasses.join(' ')}"` : '';
+        tailwindHtml += `    <div${classStr}>${i + 1}</div>\n`;
+      });
+      tailwindHtml += `</div>`;
+      
+      // Generate Tailwind config note for custom values
+      let tailwindCss = `/* Tailwind CSS Classes Used */\n\n`;
+      tailwindCss += `/* Parent Container */\n`;
+      tailwindCss += `/* ${parentClasses} */\n\n`;
+      
+      if (cols > 12 || rows > 12) {
+        tailwindCss += `/* Note: For more than 12 columns/rows, add to tailwind.config.js:\n`;
+        tailwindCss += `   extend: {\n`;
+        tailwindCss += `     gridTemplateColumns: { '${cols}': 'repeat(${cols}, minmax(0, 1fr))' },\n`;
+        tailwindCss += `     gridTemplateRows: { '${rows}': 'repeat(${rows}, minmax(0, 1fr))' }\n`;
+        tailwindCss += `   }\n*/\n\n`;
+      }
+      
+      tailwindCss += `/* Item Classes */\n`;
+      items.forEach((item, i) => {
+        const itemClasses = [];
+        if (item.colStart > 1) itemClasses.push(`col-start-${Math.min(item.colStart, 13)}`);
+        if (item.colSpan > 1) itemClasses.push(`col-span-${Math.min(item.colSpan, 12)}`);
+        if (item.rowStart > 1) itemClasses.push(`row-start-${Math.min(item.rowStart, 13)}`);
+        if (item.rowSpan > 1) itemClasses.push(`row-span-${Math.min(item.rowSpan, 12)}`);
+        tailwindCss += `/* div${i + 1}: ${itemClasses.join(' ') || 'default position'} */\n`;
+      });
+      
+      return { html: tailwindHtml, css: tailwindCss };
+    }
+    
+    // Default CSS output
     const htmlCode = `<div class="parent">\n${items.map((_, i) => `    <div class="div${i + 1}">${i + 1}</div>`).join('\n')}\n</div>`;
     let cssCode = `.parent {\n  display: grid;\n  grid-template-columns: repeat(${cols}, 1fr);\n  grid-template-rows: repeat(${rows}, 1fr);\n  gap: ${gap}px;\n}\n`;
     items.forEach((item, i) => { 
       cssCode += `\n.div${i + 1} { grid-area: ${item.rowStart} / ${item.colStart} / ${item.rowStart + item.rowSpan} / ${item.colStart + item.colSpan}; }`; 
     });
     return { html: htmlCode, css: cssCode };
-  }, [items, cols, rows, gap]);
+  }, [items, cols, rows, gap, outputMode]);
 
   const copyToClipboard = useCallback((text, type) => {
     navigator.clipboard.writeText(text);
@@ -400,6 +458,73 @@ const GridGenerator = () => {
           >Reset</button>
         </div>
 
+        {/* Output Mode Toggle */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          maxWidth: isMobile ? '100%' : '1000px', 
+          margin: '1.5rem auto 0',
+          padding: isMobile ? '0 0.5rem' : 0 
+        }}>
+          <div style={{
+            display: 'flex',
+            background: THEME.cardBg,
+            backdropFilter: 'blur(10px)',
+            border: `1px solid ${THEME.glassBorder}`,
+            borderRadius: '0.75rem',
+            padding: '4px',
+            gap: '4px'
+          }}>
+            <button
+              onClick={() => setOutputMode('css')}
+              style={{
+                padding: isSmallMobile ? '0.5rem 1rem' : '0.6rem 1.5rem',
+                background: outputMode === 'css' 
+                  ? `linear-gradient(135deg, ${THEME.accent} 0%, #8b5cf6 100%)`
+                  : 'transparent',
+                border: 'none',
+                borderRadius: '0.5rem',
+                color: outputMode === 'css' ? 'white' : '#9ca3af',
+                cursor: 'pointer',
+                fontSize: isSmallMobile ? '0.75rem' : '0.875rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.502 0C3.355 0 0 3.355 0 7.502s3.355 7.502 7.502 7.502c4.147 0 7.502-3.355 7.502-7.502S11.649 0 7.502 0zm0 12.504c-2.76 0-5.002-2.242-5.002-5.002S4.742 2.5 7.502 2.5s5.002 2.242 5.002 5.002-2.242 5.002-5.002 5.002zM19.998 0c-2.21 0-4.002 1.792-4.002 4.002V12h4.002c2.21 0 4.002-1.792 4.002-4.002V4.002C24 1.792 22.208 0 19.998 0z"/>
+              </svg>
+              CSS
+            </button>
+            <button
+              onClick={() => setOutputMode('tailwind')}
+              style={{
+                padding: isSmallMobile ? '0.5rem 1rem' : '0.6rem 1.5rem',
+                background: outputMode === 'tailwind'
+                  ? `linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)`
+                  : 'transparent',
+                border: 'none',
+                borderRadius: '0.5rem',
+                color: outputMode === 'tailwind' ? 'white' : '#9ca3af',
+                cursor: 'pointer',
+                fontSize: isSmallMobile ? '0.75rem' : '0.875rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z"/>
+              </svg>
+              Tailwind
+            </button>
+          </div>
+        </div>
         {/* Code Output */}
         <div ref={codeOutputRef} style={{ 
           display: 'grid', 
@@ -409,7 +534,10 @@ const GridGenerator = () => {
           margin: isMobile ? '2rem auto 0' : '3rem auto 0', 
           padding: isMobile ? '0 0.5rem' : 0 
         }}>
-          {[['HTML', html, 'html'], ['CSS', css, 'css']].map(([label, code, type]) => (
+          {[
+            ['HTML', html, 'html'], 
+            [outputMode === 'tailwind' ? 'Tailwind Info' : 'CSS', css, 'css']
+          ].map(([label, code, type]) => (
             <div key={type} style={{
               background: THEME.cardBg,
               backdropFilter: 'blur(15px)',
