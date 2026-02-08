@@ -14,6 +14,7 @@ const FluidMeshGenerator = () => {
   const [resizing, setResizing] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth < 480);
+  const [outputMode, setOutputMode] = useState('css'); // 'css' or 'tailwind'
   const gridRef = useRef(null);
   const glowRef = useRef(null);
   const containerRef = useRef(null);
@@ -191,13 +192,65 @@ const FluidMeshGenerator = () => {
   }, []);
 
   const { html, css } = useMemo(() => {
+    // Helper to convert pixel gap to Tailwind class
+    const getGapClass = (gapPx) => {
+      const gapMap = {
+        0: '0', 1: 'px', 2: '0.5', 4: '1', 6: '1.5', 8: '2', 10: '2.5',
+        12: '3', 14: '3.5', 16: '4', 20: '5', 24: '6', 28: '7', 32: '8',
+        36: '9', 40: '10', 44: '11', 48: '12'
+      };
+      const sorted = Object.keys(gapMap).map(Number).sort((a, b) => Math.abs(a - gapPx) - Math.abs(b - gapPx));
+      return gapMap[sorted[0]] || '2';
+    };
+
+    if (outputMode === 'tailwind') {
+      const gapClass = getGapClass(gap);
+      const parentClasses = `grid grid-cols-${Math.min(cols, 12)} grid-rows-${Math.min(rows, 12)} gap-${gapClass}`;
+      
+      let tailwindHtml = `<div class="${parentClasses}">\n`;
+      items.forEach((item, i) => {
+        const itemClasses = [];
+        if (item.colStart > 1) itemClasses.push(`col-start-${Math.min(item.colStart, 13)}`);
+        if (item.colSpan > 1) itemClasses.push(`col-span-${Math.min(item.colSpan, 12)}`);
+        if (item.rowStart > 1) itemClasses.push(`row-start-${Math.min(item.rowStart, 13)}`);
+        if (item.rowSpan > 1) itemClasses.push(`row-span-${Math.min(item.rowSpan, 12)}`);
+        const classStr = itemClasses.length > 0 ? ` class="${itemClasses.join(' ')}"` : '';
+        tailwindHtml += `    <div${classStr}>${i + 1}</div>\n`;
+      });
+      tailwindHtml += `</div>`;
+      
+      let tailwindCss = `/* Tailwind CSS Classes Used */\n\n`;
+      tailwindCss += `/* Parent Container */\n`;
+      tailwindCss += `/* ${parentClasses} */\n\n`;
+      
+      if (cols > 12 || rows > 12) {
+        tailwindCss += `/* Note: For more than 12 columns/rows, add to tailwind.config.js:\n`;
+        tailwindCss += `   extend: {\n`;
+        tailwindCss += `     gridTemplateColumns: { '${cols}': 'repeat(${cols}, minmax(0, 1fr))' },\n`;
+        tailwindCss += `     gridTemplateRows: { '${rows}': 'repeat(${rows}, minmax(0, 1fr))' }\n`;
+        tailwindCss += `   }\n*/\n\n`;
+      }
+      
+      tailwindCss += `/* Item Classes */\n`;
+      items.forEach((item, i) => {
+        const itemClasses = [];
+        if (item.colStart > 1) itemClasses.push(`col-start-${Math.min(item.colStart, 13)}`);
+        if (item.colSpan > 1) itemClasses.push(`col-span-${Math.min(item.colSpan, 12)}`);
+        if (item.rowStart > 1) itemClasses.push(`row-start-${Math.min(item.rowStart, 13)}`);
+        if (item.rowSpan > 1) itemClasses.push(`row-span-${Math.min(item.rowSpan, 12)}`);
+        tailwindCss += `/* div${i + 1}: ${itemClasses.join(' ') || 'default position'} */\n`;
+      });
+      
+      return { html: tailwindHtml, css: tailwindCss };
+    }
+    
     const htmlCode = `<div class="parent">\n${items.map((item, i) => `    <div class="div${i + 1}">${i + 1}</div>`).join('\n')}\n</div>`;
     let cssCode = `.parent {\n  display: grid;\n  grid-template-columns: repeat(${cols}, 1fr);\n  grid-template-rows: repeat(${rows}, 1fr);\n  gap: ${gap}px;\n}\n`;
     items.forEach((item, i) => {
       cssCode += `\n.div${i + 1} { grid-area: ${item.rowStart} / ${item.colStart} / ${item.rowStart + item.rowSpan} / ${item.colStart + item.colSpan}; }`;
     });
     return { html: htmlCode, css: cssCode };
-  }, [items, cols, rows, gap]);
+  }, [items, cols, rows, gap, outputMode]);
 
   const copyToClipboard = useCallback((text, type) => {
     navigator.clipboard.writeText(text);
@@ -301,9 +354,72 @@ const FluidMeshGenerator = () => {
           }}>Reset</button>
         </div>
 
+        {/* Output Mode Toggle */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          maxWidth: '1000px', 
+          margin: '1.5rem auto 0'
+        }}>
+          <div style={{
+            display: 'flex',
+            background: 'rgba(0, 0, 0, 0.3)',
+            border: `1px solid ${THEME.glassBorder}`,
+            borderRadius: '0.75rem',
+            padding: '4px',
+            gap: '4px'
+          }}>
+            <button
+              onClick={() => setOutputMode('css')}
+              style={{
+                padding: '0.6rem 1.5rem',
+                background: outputMode === 'css' 
+                  ? `linear-gradient(135deg, ${THEME.accent} 0%, #1e40af 100%)`
+                  : 'transparent',
+                border: 'none',
+                borderRadius: '0.5rem',
+                color: outputMode === 'css' ? 'white' : '#9ca3af',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              CSS
+            </button>
+            <button
+              onClick={() => setOutputMode('tailwind')}
+              style={{
+                padding: '0.6rem 1.5rem',
+                background: outputMode === 'tailwind'
+                  ? `linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)`
+                  : 'transparent',
+                border: 'none',
+                borderRadius: '0.5rem',
+                color: outputMode === 'tailwind' ? 'white' : '#9ca3af',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              Tailwind
+            </button>
+          </div>
+        </div>
+
         {/* Code Output */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '1.5rem' : '2rem', maxWidth: '1000px', margin: '3rem auto 0', padding: isMobile ? '0 1rem' : 0 }}>
-          {[['HTML', html, 'html'], ['CSS', css, 'css']].map(([label, code, type]) => (
+          {[
+            ['HTML', html, 'html'], 
+            [outputMode === 'tailwind' ? 'Tailwind Info' : 'CSS', css, 'css']
+          ].map(([label, code, type]) => (
             <div key={type} style={{
               background: 'rgba(0, 0, 0, 0.5)', border: `1px solid ${THEME.itemBorder}`,
               borderRadius: '0.75rem', padding: isMobile ? '1rem' : '1.5rem', backdropFilter: 'blur(10px)'
